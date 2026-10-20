@@ -1,0 +1,895 @@
+openapi: 3.1.1
+info:
+  title: API da Fundação do Sistema Interno de Sorveteria
+  version: 1.0.0
+  description: Contrato da fundação para sessão, usuários, perfis fixos, loja e auditoria.
+servers:
+  - url: /api/v1
+tags:
+  - name: Session
+  - name: Users
+  - name: Roles
+  - name: Store
+  - name: Audit
+  - name: Health
+paths:
+  /session/csrf:
+    get:
+      tags: [Session]
+      operationId: getCsrfToken
+      summary: Obtém token CSRF para a próxima operação mutável
+      security: []
+      responses:
+        '200':
+          description: Token emitido; não representa autenticação.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CsrfToken'
+  /session:
+    post:
+      tags: [Session]
+      operationId: login
+      summary: Inicia sessão individual
+      security:
+        - csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Sessão criada; o cookie de sessão é HttpOnly e não aparece no corpo.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionView'
+        '401':
+          $ref: '#/components/responses/Problem'
+        '429':
+          description: Combinação de login e origem temporariamente limitada; a mensagem não confirma se a conta existe.
+          headers:
+            Retry-After:
+              $ref: '#/components/headers/RetryAfter'
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+    get:
+      tags: [Session]
+      operationId: getCurrentSession
+      summary: Consulta usuário e autorizações da sessão atual
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Sessão válida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionView'
+        '401':
+          $ref: '#/components/responses/Problem'
+    delete:
+      tags: [Session]
+      operationId: logout
+      summary: Encerra a sessão atual
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      responses:
+        '204':
+          description: Sessão encerrada ou já ausente.
+  /session/password:
+    put:
+      tags: [Session]
+      operationId: changeOwnPassword
+      summary: Substitui a senha temporária ou atual do usuário autenticado
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+      responses:
+        '204':
+          description: Senha alterada; a sessão atual foi rotacionada e as demais sessões do usuário foram revogadas.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '401':
+          $ref: '#/components/responses/Problem'
+  /roles:
+    get:
+      tags: [Roles]
+      operationId: listRoles
+      summary: Lista os dois perfis fixos
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Perfis e permissões somente leitura.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Role'
+        '403':
+          $ref: '#/components/responses/Problem'
+  /users:
+    get:
+      tags: [Users]
+      operationId: listUsers
+      summary: Pesquisa usuários com paginação por cursor
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - name: query
+          in: query
+          schema:
+            type: string
+            maxLength: 120
+        - name: active
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Página de usuários.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPage'
+        '403':
+          $ref: '#/components/responses/Problem'
+    post:
+      tags: [Users]
+      operationId: createUser
+      summary: Cria usuário com senha temporária
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Usuário criado com senha temporária válida por 24 horas; o segredo não é devolvido.
+          headers:
+            Location:
+              schema:
+                type: string
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '409':
+          $ref: '#/components/responses/Problem'
+  /users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      tags: [Users]
+      operationId: getUser
+      summary: Consulta um usuário pelo identificador
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Usuário encontrado.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/Problem'
+    put:
+      tags: [Users]
+      operationId: updateUser
+      summary: Atualiza nome e login do usuário
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Usuário atualizado.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+  /users/{userId}/roles:
+    put:
+      tags: [Users]
+      operationId: replaceUserRoles
+      summary: Substitui atribuições pelos perfis fixos
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleAssignmentRequest'
+      responses:
+        '200':
+          description: Perfis substituídos e autorização versionada.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+  /users/{userId}/temporary-password:
+    put:
+      tags: [Users]
+      operationId: replaceTemporaryPassword
+      summary: Emite nova senha temporária e revoga as sessões do usuário
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/IfMatch'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemporaryPasswordRequest'
+      responses:
+        '204':
+          description: Nova senha temporária válida por 24 horas; a anterior e todas as sessões foram revogadas e o segredo não é devolvido.
+        '400':
+          $ref: '#/components/responses/Problem'
+        '403':
+          $ref: '#/components/responses/Problem'
+        '404':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+  /users/{userId}/status:
+    patch:
+      tags: [Users]
+      operationId: changeUserStatus
+      summary: Ativa ou inativa usuário
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [active]
+              properties:
+                active:
+                  type: boolean
+      responses:
+        '200':
+          description: Estado atualizado.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '409':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+  /store:
+    get:
+      tags: [Store]
+      operationId: getStore
+      summary: Consulta a configuração da loja
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Configuração atual.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '404':
+          $ref: '#/components/responses/Problem'
+    put:
+      tags: [Store]
+      operationId: putStore
+      summary: Cria ou substitui a configuração da loja única
+      security:
+        - cookieAuth: []
+          csrfHeader: []
+      parameters:
+        - $ref: '#/components/parameters/IfMatchOptionalForCreate'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreInput'
+      responses:
+        '200':
+          description: Configuração atualizada.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '201':
+          description: Configuração criada.
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Store'
+        '400':
+          $ref: '#/components/responses/Problem'
+        '412':
+          $ref: '#/components/responses/Problem'
+  /audit-events:
+    get:
+      tags: [Audit]
+      operationId: listAuditEvents
+      summary: Pesquisa eventos imutáveis
+      security:
+        - cookieAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - name: occurredFrom
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: occurredTo
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: actorUserId
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: outcome
+          in: query
+          schema:
+            $ref: '#/components/schemas/AuditOutcome'
+      responses:
+        '200':
+          description: Página em ordem decrescente por instante e ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditPage'
+        '403':
+          $ref: '#/components/responses/Problem'
+  /health/live:
+    get:
+      tags: [Health]
+      operationId: getLiveness
+      summary: Verifica se o processo está vivo
+      security: []
+      responses:
+        '200':
+          description: Processo vivo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /health/ready:
+    get:
+      tags: [Health]
+      operationId: getReadiness
+      summary: Verifica se a aplicação está pronta
+      security: []
+      responses:
+        '200':
+          description: Aplicação pronta, sem detalhes internos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          description: Banco, esquema ou configuração ainda não permite operação.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: SORV_SESSION
+    csrfHeader:
+      type: apiKey
+      in: header
+      name: X-XSRF-TOKEN
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^[1-9][0-9]*$'
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+        maxLength: 512
+    CorrelationId:
+      name: X-Correlation-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+    IfMatchOptionalForCreate:
+      name: If-Match
+      in: header
+      required: false
+      description: Obrigatório ao atualizar; omitir apenas quando a loja ainda não existe.
+      schema:
+        type: string
+  headers:
+    CorrelationId:
+      schema:
+        type: string
+        format: uuid
+    ETag:
+      schema:
+        type: string
+    RetryAfter:
+      description: Segundos restantes até a combinação poder tentar autenticar novamente.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 900
+  responses:
+    Problem:
+      description: Erro estruturado e sanitizado.
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    CsrfToken:
+      type: object
+      additionalProperties: false
+      required: [headerName, token]
+      properties:
+        headerName:
+          const: X-XSRF-TOKEN
+        token:
+          type: string
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [login, password]
+      properties:
+        login:
+          type: string
+          minLength: 3
+          maxLength: 64
+        password:
+          type: string
+          format: password
+          minLength: 1
+          maxLength: 128
+    PasswordChangeRequest:
+      type: object
+      additionalProperties: false
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+          format: password
+        newPassword:
+          type: string
+          format: password
+          minLength: 12
+          maxLength: 128
+    TemporaryPasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [temporaryPassword]
+      properties:
+        temporaryPassword:
+          type: string
+          format: password
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+    SessionView:
+      type: object
+      additionalProperties: false
+      required: [user, permissions, authenticatedAt, idleExpiresAt, absoluteExpiresAt]
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        permissions:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+        authenticatedAt:
+          type: string
+          format: date-time
+        idleExpiresAt:
+          type: string
+          format: date-time
+        absoluteExpiresAt:
+          type: string
+          format: date-time
+    Role:
+      type: object
+      additionalProperties: false
+      required: [code, displayName, permissions]
+      properties:
+        code:
+          type: string
+          enum: [ADMINISTRATOR, OPERATOR]
+        displayName:
+          type: string
+        permissions:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+    User:
+      type: object
+      additionalProperties: false
+      required: [id, login, displayName, active, mustChangePassword, temporaryPasswordExpiresAt, roles, version, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          pattern: '^[1-9][0-9]*$'
+        login:
+          type: string
+        displayName:
+          type: string
+        active:
+          type: boolean
+        mustChangePassword:
+          type: boolean
+        temporaryPasswordExpiresAt:
+          type: [string, 'null']
+          format: date-time
+          description: Expiração UTC da senha temporária; nulo para senha permanente.
+        roles:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum: [ADMINISTRATOR, OPERATOR]
+        version:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CreateUserRequest:
+      type: object
+      additionalProperties: false
+      required: [login, displayName, initialPassword, roles]
+      properties:
+        login:
+          type: string
+          pattern: '^[A-Za-z0-9._-]{3,64}$'
+        displayName:
+          type: string
+          minLength: 2
+          maxLength: 120
+        initialPassword:
+          type: string
+          format: password
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [ADMINISTRATOR, OPERATOR]
+    UpdateUserRequest:
+      type: object
+      additionalProperties: false
+      required: [login, displayName]
+      properties:
+        login:
+          type: string
+          pattern: '^[A-Za-z0-9._-]{3,64}$'
+        displayName:
+          type: string
+          minLength: 2
+          maxLength: 120
+    RoleAssignmentRequest:
+      type: object
+      additionalProperties: false
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            enum: [ADMINISTRATOR, OPERATOR]
+    UserPage:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        nextCursor:
+          type: [string, 'null']
+    StoreInput:
+      type: object
+      additionalProperties: false
+      required: [tradeName, currencyCode, timeZone]
+      properties:
+        tradeName:
+          type: string
+          minLength: 2
+          maxLength: 120
+        legalName:
+          type: [string, 'null']
+          minLength: 2
+          maxLength: 160
+        taxId:
+          type: [string, 'null']
+          pattern: '^[0-9]{14}$'
+        address:
+          oneOf:
+            - $ref: '#/components/schemas/Address'
+            - type: 'null'
+        currencyCode:
+          const: BRL
+        timeZone:
+          type: string
+          default: America/Sao_Paulo
+    Store:
+      allOf:
+        - $ref: '#/components/schemas/StoreInput'
+        - type: object
+          required: [id, version, createdAt, updatedAt]
+          properties:
+            id:
+              const: '1'
+            version:
+              type: integer
+              format: int64
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        postalCode:
+          type: string
+          pattern: '^[0-9]{8}$'
+        street:
+          type: string
+          maxLength: 160
+        number:
+          type: string
+          maxLength: 30
+        complement:
+          type: [string, 'null']
+          maxLength: 120
+        district:
+          type: string
+          maxLength: 120
+        city:
+          type: string
+          maxLength: 120
+        stateCode:
+          type: string
+          pattern: '^[A-Z]{2}$'
+        countryCode:
+          const: BR
+    AuditOutcome:
+      type: string
+      enum: [SUCCEEDED, DENIED, FAILED]
+    AuditEvent:
+      type: object
+      additionalProperties: false
+      required: [id, occurredAt, action, outcome, origin, correlationId]
+      properties:
+        id:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+        action:
+          type: string
+        outcome:
+          $ref: '#/components/schemas/AuditOutcome'
+        origin:
+          type: string
+          description: Origem normalizada da rede ou LOCAL_TTY; nunca contém credencial.
+        actorUserId:
+          type: [string, 'null']
+        actorLogin:
+          type: [string, 'null']
+        actorName:
+          type: [string, 'null']
+        targetType:
+          type: [string, 'null']
+        targetId:
+          type: [string, 'null']
+        reason:
+          type: [string, 'null']
+        correlationId:
+          type: string
+          format: uuid
+        changes:
+          type: object
+          additionalProperties: true
+    AuditPage:
+      type: object
+      additionalProperties: false
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+        nextCursor:
+          type: [string, 'null']
+    Health:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN, OUT_OF_SERVICE]
+    Violation:
+      type: object
+      required: [field, code, message]
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status, code, correlationId]
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+        code:
+          type: string
+        correlationId:
+          type: string
+          format: uuid
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Violation'

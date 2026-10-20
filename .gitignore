@@ -1,0 +1,14 @@
+.gradle/
+.npm-cache/
+backend/build/
+frontend/node_modules/
+frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
+.idea/
+.vscode/
+*.log
+.env
+deploy/secrets/
+deploy/releases/
+
