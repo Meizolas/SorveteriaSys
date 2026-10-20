@@ -1,0 +1,8 @@
+import { Box, Button, Card, CardContent, Chip, Divider, Stack, Typography } from '@mui/material';
+import { PageHeader } from '@/app/AppShell';
+
+type Props = { eyebrow: string; title: string; description: string; action: string; icon: string; steps: string[] };
+
+export function ModulePreviewPage({ eyebrow, title, description, action, icon, steps }: Props) {
+  return <><PageHeader eyebrow={eyebrow} title={title} description={description} action={<Button variant="contained" disabled>{action}</Button>} /><Card><CardContent sx={{ p: { xs: 3, md: 5 } }}><Stack sx={{ alignItems: 'center', textAlign: 'center', maxWidth: 620, mx: 'auto', py: 4 }}><Box sx={{ width: 72, height: 72, borderRadius: 4, bgcolor: 'primary.50', color: 'primary.main', display: 'grid', placeItems: 'center', fontSize: 30 }}>{icon}</Box><Chip label="Próxima etapa de implementação" size="small" sx={{ mt: 3 }} /><Typography variant="h5" sx={{ mt: 2 }}>Estrutura visual pronta</Typography><Typography color="text.secondary" sx={{ mt: 1 }}>Esta área já faz parte da navegação do ERP. As operações abaixo serão conectadas ao banco nas próximas tarefas.</Typography><Divider flexItem sx={{ my: 3 }} /><Stack spacing={1.5} sx={{ width: '100%' }}>{steps.map((step, index) => <Stack key={step} direction="row" spacing={1.5} sx={{ alignItems: 'center', textAlign: 'left' }}><Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'grey.100', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 800 }}>{index + 1}</Box><Typography variant="body2" sx={{ fontWeight: 600 }}>{step}</Typography></Stack>)}</Stack></Stack></CardContent></Card></>;
+}

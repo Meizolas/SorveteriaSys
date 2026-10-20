@@ -7,6 +7,7 @@ import java.time.Clock;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,7 @@ public class AuditRecorder {
     private final AuditEventJpaRepository repository;
     private final Clock clock;
 
+    @Autowired
     public AuditRecorder(AuditEventJpaRepository repository) {
         this(repository, Clock.systemUTC());
     }

@@ -1,0 +1,101 @@
+name: sorveteria
+
+services:
+  db:
+    image: mysql:8.4.11-oraclelinux9@sha256:6f3a50835c54d61ffdcf78d71381ba268c27804cd96755231d2fd6f180f822f0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      TZ: UTC
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci", "--sql-mode=STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"]
+    secrets:
+      - mysql_root_password
+      - mysql_migrator_password
+      - mysql_runtime_password
+      - mysql_backup_password
+      - mysql_retention_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$(cat /run/secrets/mysql_root_password) --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    networks: [internal]
+
+  migrate:
+    build:
+      context: ./migrate
+    command: ["apply"]
+    depends_on:
+      db:
+        condition: service_healthy
+    secrets:
+      - mysql_migrator_password
+    volumes:
+      - ../backend/src/main/resources/db/migration:/flyway/sql:ro
+    networks: [internal]
+    restart: "no"
+
+  api:
+    build:
+      context: ../backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://db:3306/sorveteria?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+      DB_USERNAME: app_runtime
+      COOKIE_SECURE: "false"
+      SPRING_PROFILES_ACTIVE: development
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SORVETERIA_DEMO_ENABLED: "true"
+    secrets:
+      - mysql_runtime_password
+      - auth_throttle_hmac_key
+      - demo_admin_password
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks: [internal]
+
+  web:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [internal]
+
+volumes:
+  mysql_data:
+
+networks:
+  internal:
+    driver: bridge
+
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password
+  mysql_migrator_password:
+    file: ./secrets/mysql_migrator_password
+  mysql_runtime_password:
+    file: ./secrets/mysql_runtime_password
+  mysql_backup_password:
+    file: ./secrets/mysql_backup_password
+  mysql_retention_password:
+    file: ./secrets/mysql_retention_password
+  auth_throttle_hmac_key:
+    file: ./secrets/auth_throttle_hmac_key
+  demo_admin_password:
+    file: ./secrets/demo_admin_password

@@ -18,14 +18,14 @@ description: "Tarefas de implementação da fundação do sistema interno"
 
 **Purpose**: criar toolchains, estrutura e comandos reproduzíveis antes de escrever regras da feature.
 
-- [ ] T001 Criar a estrutura raiz definida no plano com `backend/settings.gradle.kts`, `frontend/package.json`, `deploy/compose.yaml`, `scripts/dev/README.md` e os diretórios de código/teste correspondentes
-- [ ] T002 [P] Configurar Eclipse Temurin Java 21.0.12.1+1, Spring Boot 4.1.1, Gradle Wrapper 9.7.1, Bouncy Castle `bcprov-jdk18on` 1.86 e verificação de dependências em `backend/build.gradle.kts` e `backend/gradle/wrapper/gradle-wrapper.properties`
-- [ ] T003 [P] Fixar Node 24.22.0, React 19.3.0, TypeScript 6.0.2, Vite 8.3.4, MUI 9.5.0, Router 8.4.0, Query 5.104.3 e ferramentas de teste em `frontend/package.json` e `frontend/package-lock.json`
-- [ ] T004 [P] Configurar formatação e lint do backend em `backend/build.gradle.kts` e `backend/config/checkstyle/checkstyle.xml`
-- [ ] T005 [P] Configurar TypeScript strict, ESLint, formatação, Vitest e aliases em `frontend/tsconfig.json`, `frontend/eslint.config.js`, `frontend/vite.config.ts` e `frontend/vitest.config.ts`
+- [X] T001 Criar a estrutura raiz definida no plano com `backend/settings.gradle.kts`, `frontend/package.json`, `deploy/compose.yaml`, `scripts/dev/README.md` e os diretórios de código/teste correspondentes
+- [X] T002 [P] Configurar Eclipse Temurin Java 21.0.12.1+1, Spring Boot 4.1.1, Gradle Wrapper 9.7.1, Bouncy Castle `bcprov-jdk18on` 1.86 e verificação de dependências em `backend/build.gradle.kts` e `backend/gradle/wrapper/gradle-wrapper.properties`
+- [X] T003 [P] Fixar Node 24.22.0, React 19.3.0, TypeScript 6.0.2, Vite 8.3.4, MUI 9.5.0, Router 8.4.0, Query 5.104.3 e ferramentas de teste em `frontend/package.json` e `frontend/package-lock.json`
+- [X] T004 [P] Configurar formatação e lint do backend em `backend/build.gradle.kts` e `backend/config/checkstyle/checkstyle.xml`
+- [X] T005 [P] Configurar TypeScript strict, ESLint, formatação, Vitest e aliases em `frontend/tsconfig.json`, `frontend/eslint.config.js`, `frontend/vite.config.ts` e `frontend/vitest.config.ts`
 - [ ] T006 [P] Registrar as versões/digests base verificados no plano e exigir digests reais das imagens produzidas em cada release, sem placeholder ou `latest`, em `deploy/release-versions.env` e exemplos sem segredo em `deploy/secrets.example/README.md`
-- [ ] T007 Configurar pipeline de build, tipos, lint, testes backend/frontend, contrato e E2E em `.github/workflows/ci.yml`
-- [ ] T008 Documentar comandos locais reproduzíveis e convenção de código inglês/documentação portuguesa em `README.md`
+- [X] T007 Configurar pipeline de build, tipos, lint, testes backend/frontend, contrato e E2E em `.github/workflows/ci.yml`
+- [X] T008 Documentar comandos locais reproduzíveis e convenção de código inglês/documentação portuguesa em `README.md`
 
 ---
 
@@ -38,7 +38,7 @@ description: "Tarefas de implementação da fundação do sistema interno"
 - [ ] T009 Criar a aplicação Spring e declarar limites dos pacotes `access`, `store`, `audit` e `platform` em `backend/src/main/java/br/com/sorveteria/SorveteriaApplication.java` e respectivos `package-info.java`
 - [ ] T010 [P] Implementar configuração externa fail-fast, leitura `configtree`, UTC, modo não web e perfis de execução em `backend/src/main/resources/application.yml` e `backend/src/main/java/br/com/sorveteria/platform/config/ApplicationProperties.java`
 - [ ] T011 [P] Definir bootstrap idempotente das contas MySQL `app_migrator`, `app_runtime`, `app_backup` e `app_retention` com grants mínimos em `deploy/db/init/001-create-accounts.sql`
-- [ ] T012 Configurar Flyway CLI 13.6.0, Connector/J fixado e entrypoint one-shot sem migração automática em `deploy/migrate/Dockerfile` e `deploy/migrate/entrypoint.sh`
+- [X] T012 Configurar Flyway CLI 13.6.0, Connector/J fixado e entrypoint one-shot sem migração automática em `deploy/migrate/Dockerfile` e `deploy/migrate/entrypoint.sh`
 - [ ] T013 Criar a migração inicial com todas as tabelas, constraints, collations, índices e seeds de perfis/permissões de `data-model.md` em `backend/src/main/resources/db/migration/V1__foundation_schema.sql`
 - [ ] T014 [P] Criar suporte reutilizável de Testcontainers 2.0.5 com `mysql:8.4.11-oraclelinux9` pelo digest Linux/amd64 registrado no plano em `backend/src/test/java/br/com/sorveteria/support/MySqlContainerSupport.java`
 - [ ] T015 [P] Implementar RFC 9457, validação de entrada e mapeamento sanitizado de 400/401/403/404/409/412/429/503 em `backend/src/main/java/br/com/sorveteria/platform/web/ApiExceptionHandler.java`
@@ -69,7 +69,7 @@ description: "Tarefas de implementação da fundação do sistema interno"
 
 - [ ] T025 [US1] Implementar validação de histórico Flyway, migrações pendentes e compatibilidade do schema sem DDL em `backend/src/main/java/br/com/sorveteria/platform/database/SchemaReadinessValidator.java`
 - [ ] T026 [US1] Implementar liveness e readiness sanitizadas em `backend/src/main/java/br/com/sorveteria/platform/health/ApplicationHealthConfiguration.java`
-- [ ] T027 [US1] Implementar os contratos `migrate info`, `migrate validate` e `migrate apply` em `deploy/migrate/entrypoint.sh`
+- [X] T027 [US1] Implementar os contratos `migrate info`, `migrate validate` e `migrate apply` em `deploy/migrate/entrypoint.sh`
 - [ ] T028 [US1] Configurar serviços `db`, `migrate`, `api` e redes/volumes internos com tags e digests em `deploy/compose.yaml` e `deploy/compose.production.yaml`
 - [ ] T029 [US1] Configurar Caddy 2.11.7 para SPA, proxy `/api`, saúde mínima, HTTPS e mesma origem em `deploy/Caddyfile`
 - [ ] T030 [US1] Implementar o comando sanitizado `system status` em `backend/src/main/java/br/com/sorveteria/platform/cli/SystemStatusCommand.java`

@@ -33,7 +33,8 @@ export function ChangePasswordPage() {
           onChange={(e) => setCurrentPassword(e.target.value)} required fullWidth margin="normal" />
         <TextField label="Nova senha" type="password" value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)} required fullWidth margin="normal"
-          helperText="Use entre 12 e 128 caracteres." inputProps={{ minLength: 12, maxLength: 128 }} />
+          helperText="Use entre 12 e 128 caracteres."
+          slotProps={{ htmlInput: { minLength: 12, maxLength: 128 } }} />
         <TextField label="Confirmar nova senha" type="password" value={confirmation}
           onChange={(e) => setConfirmation(e.target.value)} required fullWidth margin="normal" />
         <Button type="submit" variant="contained" disabled={busy}>Salvar senha</Button>

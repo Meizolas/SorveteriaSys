@@ -1,0 +1,24 @@
+openapi: 3.1.0
+info: { title: Sorveteria - Operação de Balcão MVP, version: 0.1.0 }
+paths:
+  /api/dashboard/today:
+    get: { summary: Indicadores do dia, responses: { '200': { description: Resumo disponível } } }
+  /api/categories:
+    get: { summary: Lista categorias, responses: { '200': { description: Lista } } }
+    post: { summary: Cria categoria, responses: { '201': { description: Criada } } }
+  /api/products:
+    get: { summary: Busca produtos, responses: { '200': { description: Lista paginada } } }
+    post: { summary: Cria produto, responses: { '201': { description: Criado } } }
+  /api/stock/movements:
+    post: { summary: Registra entrada ou ajuste, responses: { '201': { description: Registrado } } }
+  /api/cash-shifts/current:
+    get: { summary: Consulta turno atual, responses: { '200': { description: Estado atual } } }
+  /api/cash-shifts:
+    post: { summary: Abre turno, responses: { '201': { description: Aberto } } }
+  /api/sales:
+    get: { summary: Lista vendas recentes, responses: { '200': { description: Lista } } }
+    post:
+      summary: Finaliza venda de modo idempotente
+      parameters: [{ name: Idempotency-Key, in: header, required: true, schema: { type: string } }]
+      responses: { '201': { description: Concluída }, '409': { description: Conflito } }
+

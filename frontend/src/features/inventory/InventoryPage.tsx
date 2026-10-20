@@ -1,0 +1,24 @@
+import { useMemo, useState } from 'react';
+import { Box, Button, Card, Chip, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, LinearProgress, MenuItem, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { PageHeader } from '@/app/AppShell';
+import { demoProducts } from '@/shared/demo/demoData';
+
+export function InventoryPage() {
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('Todos');
+  const [open, setOpen] = useState(false);
+  const rows = useMemo(() => demoProducts.filter((item) => item.name.toLowerCase().includes(query.toLowerCase()) && (filter === 'Todos' || (filter === 'Estoque baixo' ? item.stock <= item.minimum : item.stock > item.minimum))), [filter, query]);
+  const low = demoProducts.filter((item) => item.stock <= item.minimum).length;
+  return <>
+    <PageHeader eyebrow="Controle" title="Estoque" description="Acompanhe saldos e registre movimentações dos produtos." action={<Button variant="contained" onClick={() => setOpen(true)}>+ Nova movimentação</Button>} />
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 2.5 }}>
+      <Summary label="Itens controlados" value={`${demoProducts.length}`} icon="≋" /><Summary label="Estoque baixo" value={`${low}`} icon="!" warning /><Summary label="Movimentos hoje" value="0" icon="↕" />
+    </Stack>
+    <Card><Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ p: 2.5 }}><TextField value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar produto" size="small" sx={{ flex: 1 }} slotProps={{ input: { startAdornment: <InputAdornment position="start">⌕</InputAdornment> } }} /><TextField select value={filter} onChange={(e) => setFilter(e.target.value)} size="small" sx={{ minWidth: 180 }}>{['Todos', 'Estoque baixo', 'Regular'].map((item) => <MenuItem key={item} value={item}>{item}</MenuItem>)}</TextField><Chip label="Dados de demonstração" color="secondary" variant="outlined" /></Stack>
+      <TableContainer><Table><TableHead><TableRow><TableCell>Produto</TableCell><TableCell>Categoria</TableCell><TableCell>Saldo atual</TableCell><TableCell>Mínimo</TableCell><TableCell>Situação</TableCell></TableRow></TableHead><TableBody>{rows.map((item) => { const ratio = Math.min(100, item.stock / Math.max(item.minimum * 2, 1) * 100); const isLow = item.stock <= item.minimum; return <TableRow key={item.id} hover><TableCell><Typography variant="body2" sx={{ fontWeight: 750 }}>{item.name}</Typography><Typography variant="caption" color="text.secondary">{item.sku}</Typography></TableCell><TableCell>{item.category}</TableCell><TableCell sx={{ minWidth: 190 }}><Stack direction="row" sx={{ justifyContent: 'space-between' }}><Typography variant="body2" sx={{ fontWeight: 700 }}>{item.stock} un.</Typography><Typography variant="caption" color="text.secondary">{Math.round(ratio)}%</Typography></Stack><LinearProgress value={ratio} variant="determinate" color={isLow ? 'warning' : 'success'} sx={{ mt: .75 }} /></TableCell><TableCell>{item.minimum} un.</TableCell><TableCell><Chip size="small" color={isLow ? 'warning' : 'success'} label={isLow ? 'Repor estoque' : 'Regular'} /></TableCell></TableRow>; })}</TableBody></Table></TableContainer>
+    </Card>
+    <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm"><DialogTitle>Nova movimentação</DialogTitle><DialogContent><Stack spacing={2} sx={{ pt: 1 }}><TextField select label="Produto" defaultValue={1}>{demoProducts.map((item) => <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>)}</TextField><Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}><TextField select label="Tipo" defaultValue="Entrada" fullWidth><MenuItem value="Entrada">Entrada</MenuItem><MenuItem value="Ajuste">Ajuste</MenuItem></TextField><TextField label="Quantidade" type="number" defaultValue="1" fullWidth /></Stack><TextField label="Motivo" multiline rows={2} /><Typography variant="caption" color="warning.dark">Modo demonstração: o movimento ainda não será persistido.</Typography></Stack></DialogContent><DialogActions><Button onClick={() => setOpen(false)}>Cancelar</Button><Button variant="contained" onClick={() => setOpen(false)}>Registrar na prévia</Button></DialogActions></Dialog>
+  </>;
+}
+
+function Summary({ label, value, icon, warning = false }: { label: string; value: string; icon: string; warning?: boolean }) { return <Card sx={{ flex: 1 }}><Stack direction="row" spacing={2} sx={{ p: 2.5, alignItems: 'center' }}><Box sx={{ width: 46, height: 46, borderRadius: 2.5, bgcolor: warning ? 'warning.50' : 'primary.50', color: warning ? 'warning.dark' : 'primary.main', display: 'grid', placeItems: 'center', fontSize: 20, fontWeight: 800 }}>{icon}</Box><Box><Typography variant="h5">{value}</Typography><Typography variant="body2" color="text.secondary">{label}</Typography></Box></Stack></Card>; }

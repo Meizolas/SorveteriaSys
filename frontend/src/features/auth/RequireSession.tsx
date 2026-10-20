@@ -6,14 +6,15 @@ import { useAuth } from './AuthProvider';
 export function RequireSession() {
   const auth = useAuth();
   const location = useLocation();
-  const [nearExpiry, setNearExpiry] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    if (!auth.session) { setNearExpiry(false); return; }
-    const check = () => setNearExpiry(new Date(auth.session!.absoluteExpiresAt).getTime() - Date.now() <= 5 * 60_000);
-    check();
-    const timer = window.setInterval(check, 30_000);
+    if (!auth.session) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, [auth.session]);
+  const nearExpiry = auth.session
+    ? new Date(auth.session.absoluteExpiresAt).getTime() - now <= 5 * 60_000
+    : false;
   if (auth.loading) return <Container sx={{ py: 6 }}><CircularProgress aria-label="Verificando sessão" /></Container>;
   if (!auth.session) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (auth.session.user.mustChangePassword && location.pathname !== '/trocar-senha') {

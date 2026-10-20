@@ -10,6 +10,17 @@ Monólito modular local com API Spring Boot, SPA React e MySQL. Código e identi
 
 ## Comandos de desenvolvimento
 
+### Execução recomendada com Docker
+
+```powershell
+.\scripts\dev\start.ps1
+```
+
+Depois, acesse `http://localhost:8088`. O comando gera segredos locais, constrói as
+imagens e inicia MySQL, migrações, API e frontend sem exigir Java ou Node no host.
+
+### Execução direta
+
 ```powershell
 cd backend
 .\gradlew.bat check
