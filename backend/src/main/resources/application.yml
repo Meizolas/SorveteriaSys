@@ -51,7 +51,7 @@ sorveteria:
     absolute-session-timeout: 12h
     temporary-password-lifetime: 24h
   installation:
-    expected-schema-version: "2"
+    expected-schema-version: "3"
 
 ---
 spring:

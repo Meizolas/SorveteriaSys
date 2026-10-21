@@ -4,13 +4,13 @@
 
 - [ ] T001 Criar estrutura dos módulos do frontend em frontend/src/features/ e do backend em backend/src/main/java/br/com/sorveteria/
 - [X] T002 [P] Atualizar tema visual e tokens de ERP em frontend/src/app/theme.ts
-- [ ] T003 [P] Criar migração das entidades do MVP em backend/src/main/resources/db/migration/V3__create_counter_sales_mvp.sql
+- [X] T003 [P] Criar migração de catálogo e estoque em backend/src/main/resources/db/migration/V3__create_catalog_inventory.sql
 
 ## Phase 2: Foundational
 
 - [X] T004 Criar shell responsivo e navegação em frontend/src/app/AppShell.tsx
 - [X] T005 [P] Criar componentes compartilhados de página em frontend/src/shared/ui/
-- [ ] T006 [P] Criar tipos e cliente das APIs do MVP em frontend/src/shared/api/operationsApi.ts
+- [X] T006 [P] Criar tipos e cliente das APIs do MVP em frontend/src/shared/api/operationsApi.ts
 - [X] T007 Configurar rotas autenticadas dos cinco módulos em frontend/src/app/router.tsx
 
 ## Phase 3: User Story 1 - Registrar venda
@@ -21,20 +21,20 @@
 - [ ] T009 [P] [US1] Criar testes transacionais e idempotentes em backend/src/test/java/br/com/sorveteria/sales/
 - [ ] T010 [US1] Implementar finalização transacional em backend/src/main/java/br/com/sorveteria/sales/application/CheckoutService.java
 - [ ] T011 [US1] Expor endpoints de venda em backend/src/main/java/br/com/sorveteria/sales/web/SalesController.java
-- [ ] T012 [US1] Implementar tela de PDV e carrinho em frontend/src/features/pos/PosPage.tsx
+- [X] T012 [US1] Implementar tela de PDV e carrinho em frontend/src/features/pos/PosPage.tsx
 - [ ] T013 [US1] Integrar finalização e feedback do PDV em frontend/src/features/pos/PosPage.tsx
 
 ## Phase 4: User Story 2 - Catálogo e estoque
 
 **Independent Test**: cadastrar produto, registrar entrada e confirmar disponibilidade no PDV.
 
-- [ ] T014 [P] [US2] Criar entidades e repositórios de catálogo em backend/src/main/java/br/com/sorveteria/catalog/
-- [ ] T015 [P] [US2] Criar entidades e repositórios de estoque em backend/src/main/java/br/com/sorveteria/inventory/
+- [X] T014 [P] [US2] Criar entidades e repositórios de catálogo em backend/src/main/java/br/com/sorveteria/catalog/
+- [X] T015 [P] [US2] Criar entidades e repositórios de estoque em backend/src/main/java/br/com/sorveteria/inventory/
 - [ ] T016 [P] [US2] Criar testes de catálogo e saldo em backend/src/test/java/br/com/sorveteria/catalog/ e inventory/
-- [ ] T017 [US2] Implementar serviços e endpoints de catálogo em backend/src/main/java/br/com/sorveteria/catalog/
-- [ ] T018 [US2] Implementar movimentos de estoque em backend/src/main/java/br/com/sorveteria/inventory/
-- [ ] T019 [US2] Implementar tela de produtos em frontend/src/features/catalog/ProductsPage.tsx
-- [ ] T020 [US2] Implementar tela de estoque em frontend/src/features/inventory/InventoryPage.tsx
+- [X] T017 [US2] Implementar serviços e endpoints de catálogo em backend/src/main/java/br/com/sorveteria/catalog/
+- [X] T018 [US2] Implementar movimentos de estoque em backend/src/main/java/br/com/sorveteria/inventory/
+- [X] T019 [US2] Implementar tela de produtos em frontend/src/features/catalog/ProductsPage.tsx
+- [X] T020 [US2] Implementar tela de estoque em frontend/src/features/inventory/InventoryPage.tsx
 
 ## Phase 5: User Story 3 - Turno de caixa
 
@@ -43,7 +43,7 @@
 - [ ] T021 [P] [US3] Criar entidades e repositórios de caixa em backend/src/main/java/br/com/sorveteria/cash/
 - [ ] T022 [P] [US3] Criar testes de transições do caixa em backend/src/test/java/br/com/sorveteria/cash/
 - [ ] T023 [US3] Implementar serviço e endpoints de caixa em backend/src/main/java/br/com/sorveteria/cash/
-- [ ] T024 [US3] Implementar tela de caixa em frontend/src/features/cash/CashPage.tsx
+- [X] T024 [US3] Implementar tela de caixa em frontend/src/features/cash/CashPage.tsx
 
 ## Phase 6: User Story 4 - Dashboard
 
@@ -55,7 +55,7 @@
 
 ## Phase 7: Polish
 
-- [ ] T028 Criar dados sintéticos de demonstração em backend/src/main/java/br/com/sorveteria/platform/demo/DemoDataProvisioning.java
+- [X] T028 Criar dados sintéticos de catálogo em backend/src/main/java/br/com/sorveteria/catalog/application/DemoCatalogProvisioning.java
 - [ ] T029 [P] Cobrir navegação e estados com Vitest em frontend/tests/component/
 - [ ] T030 Criar fluxo Playwright do balcão em frontend/tests/e2e/counter-sale.spec.ts
 - [ ] T031 Atualizar documentação e executar specs/002-operacao-pdv-mvp/quickstart.md

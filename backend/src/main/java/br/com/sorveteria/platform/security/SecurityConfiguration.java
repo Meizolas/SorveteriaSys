@@ -40,6 +40,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/v1/session/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/session").permitAll()
                         .requestMatchers("/api/v1/session/**").authenticated()
+                        .requestMatchers("/api/v1/categories/**", "/api/v1/products/**",
+                                "/api/v1/stock/**").authenticated()
                         .requestMatchers("/api/v1/roles", "/api/v1/users/**", "/api/v1/store", "/api/v1/audit-events").authenticated()
                         .anyRequest().denyAll())
                 .addFilterAfter(sessionValidationFilter, SecurityContextHolderFilter.class);
