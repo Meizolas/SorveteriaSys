@@ -16,20 +16,45 @@ import java.time.Instant;
 @Entity
 @Table(name = "stock_balance")
 public class StockBalance {
-    @Id @Column(name = "product_id") private Long productId;
-    @MapsId @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "product_id") private Product product;
-    @Column(nullable = false, precision = 13, scale = 3) private BigDecimal quantity;
-    @Column(name = "updated_at", nullable = false) private Instant updatedAt;
-    @Version @Column(nullable = false) private long version;
+  @Id
+  @Column(name = "product_id")
+  private Long productId;
 
-    protected StockBalance() { }
-    public StockBalance(Product product, Instant now) {
-        this.product = product; this.quantity = BigDecimal.ZERO.setScale(3); this.updatedAt = now;
+  @MapsId
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id")
+  private Product product;
+
+  @Column(nullable = false, precision = 13, scale = 3)
+  private BigDecimal quantity;
+
+  @Column(name = "updated_at", nullable = false)
+  private Instant updatedAt;
+
+  @Version
+  @Column(nullable = false)
+  private long version;
+
+  protected StockBalance() {}
+
+  public StockBalance(Product product, Instant now) {
+    this.product = product;
+    this.quantity = BigDecimal.ZERO.setScale(3);
+    this.updatedAt = now;
+  }
+
+  public BigDecimal apply(BigDecimal delta, Instant now) {
+    BigDecimal previous = quantity;
+    BigDecimal result = previous.add(delta).setScale(3);
+    if (result.signum() < 0) {
+      throw new IllegalArgumentException("Estoque insuficiente para o ajuste.");
     }
-    public BigDecimal apply(BigDecimal delta, Instant now) {
-        BigDecimal previous = quantity; BigDecimal result = previous.add(delta).setScale(3);
-        if (result.signum() < 0) throw new IllegalArgumentException("Estoque insuficiente para o ajuste.");
-        quantity = result; updatedAt = now; return previous;
-    }
-    public BigDecimal getQuantity() { return quantity; }
+    quantity = result;
+    updatedAt = now;
+    return previous;
+  }
+
+  public BigDecimal getQuantity() {
+    return quantity;
+  }
 }
