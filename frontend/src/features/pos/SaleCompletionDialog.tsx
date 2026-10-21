@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Box, Button, Dialog, DialogContent, Divider, Grid, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { brl, type DemoProduct } from '@/shared/demo/demoData';
+import { brl } from '@/shared/demo/demoData';
 import { OperationIcon } from '@/shared/ui/OperationIcon';
 import { moduleColors } from '@/app/theme';
 
-export type CompletedSale = { orderNumber: string; completedAt: Date; lines: { product: DemoProduct; quantity: number }[]; total: number; payment: string; received: number; change: number };
+export type CompletedSale = { orderNumber: string; completedAt: Date; lines: { product: { id: number; name: string; price: number }; quantity: number }[]; total: number; payment: string; received: number; change: number };
 
 export function SaleCompletionDialog({ sale, onClose, onNewSale }: { sale: CompletedSale | null; onClose: () => void; onNewSale: () => void }) {
   const mobile = useMediaQuery(useTheme().breakpoints.down('sm'));

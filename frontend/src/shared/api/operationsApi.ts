@@ -21,3 +21,16 @@ export const createStockMovement = (input: {
   productId: number; type: 'ENTRY' | 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT';
   quantity: number; reason: string;
 }) => apiRequest('/api/v1/stock/movements', { method: 'POST', body: JSON.stringify(input) });
+
+export type SaleResult = {
+  id: number; code: string; total: number; completedAt: string;
+  items: { productId: number; sku: string; name: string; unitPrice: number; quantity: number; lineTotal: number }[];
+  paymentMethod: 'CASH' | 'PIX' | 'CARD'; receivedAmount: number; changeAmount: number;
+};
+
+export const createSale = (idempotencyKey: string, input: {
+  items: { productId: number; quantity: number }[];
+  paymentMethod: 'CASH' | 'PIX' | 'CARD'; receivedAmount?: number;
+}) => apiRequest<SaleResult>('/api/v1/sales', {
+  method: 'POST', headers: { 'Idempotency-Key': idempotencyKey }, body: JSON.stringify(input)
+});

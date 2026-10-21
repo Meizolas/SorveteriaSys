@@ -46,6 +46,21 @@ public class InventoryService {
         movements.save(movement);
         return new MovementData(productId, type, quantity.setScale(3), previous, resulting, reason);
     }
+
+    public void consumeForSale(Product product, BigDecimal quantity, String saleCode, Long actor, Instant now) {
+        if (!product.isTracksStock()) return;
+        StockBalance balance = balances.findByProductIdForUpdate(product.getId())
+                .orElseThrow(() -> new ApiException(HttpStatus.CONFLICT, "INSUFFICIENT_STOCK",
+                        "Produto sem saldo de estoque: " + product.getName()));
+        BigDecimal previous;
+        try { previous = balance.apply(quantity.negate(), now); }
+        catch (IllegalArgumentException exception) {
+            throw new ApiException(HttpStatus.CONFLICT, "INSUFFICIENT_STOCK",
+                    "Estoque insuficiente para " + product.getName() + ".");
+        }
+        movements.save(new StockMovement(product, "SALE_OUT", quantity.setScale(3), previous,
+                balance.getQuantity(), "Venda " + saleCode, actor, now));
+    }
     public record MovementData(Long productId, String type, BigDecimal quantity,
             BigDecimal previousQuantity, BigDecimal resultingQuantity, String reason) { }
 }
