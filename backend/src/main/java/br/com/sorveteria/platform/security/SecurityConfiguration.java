@@ -41,7 +41,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/api/v1/session").permitAll()
                         .requestMatchers("/api/v1/session/**").authenticated()
                         .requestMatchers("/api/v1/categories/**", "/api/v1/products/**",
-                                "/api/v1/stock/**", "/api/v1/sales/**").authenticated()
+                                "/api/v1/stock/**", "/api/v1/sales/**", "/api/v1/cash/**",
+                                "/api/v1/dashboard/**").authenticated()
                         .requestMatchers("/api/v1/roles", "/api/v1/users/**", "/api/v1/store", "/api/v1/audit-events").authenticated()
                         .anyRequest().denyAll())
                 .addFilterAfter(sessionValidationFilter, SecurityContextHolderFilter.class);

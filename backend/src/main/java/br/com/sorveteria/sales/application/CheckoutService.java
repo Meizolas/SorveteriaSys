@@ -1,5 +1,6 @@
 package br.com.sorveteria.sales.application;
 
+import br.com.sorveteria.cash.application.CashService;
 import br.com.sorveteria.catalog.domain.Product;
 import br.com.sorveteria.catalog.infrastructure.ProductRepository;
 import br.com.sorveteria.inventory.application.InventoryService;
@@ -29,12 +30,17 @@ public class CheckoutService {
   private final SaleRepository sales;
   private final ProductRepository products;
   private final InventoryService inventory;
+  private final CashService cash;
 
   public CheckoutService(
-      SaleRepository sales, ProductRepository products, InventoryService inventory) {
+      SaleRepository sales,
+      ProductRepository products,
+      InventoryService inventory,
+      CashService cash) {
     this.sales = sales;
     this.products = products;
     this.inventory = inventory;
+    this.cash = cash;
   }
 
   @Transactional
@@ -86,7 +92,8 @@ public class CheckoutService {
     BigDecimal change =
         method.equals("CASH") ? received.subtract(total).setScale(2) : BigDecimal.ZERO.setScale(2);
     Instant now = Instant.now();
-    Sale sale = sales.saveAndFlush(new Sale(key, fingerprint, operatorId, total, now));
+    Long cashShiftId = cash.requireOpenShiftId();
+    Sale sale = sales.saveAndFlush(new Sale(key, fingerprint, operatorId, cashShiftId, total, now));
     sale.assignCode();
     for (Product product : selected) {
       BigDecimal quantity = quantities.get(product.getId());
@@ -95,6 +102,7 @@ public class CheckoutService {
     }
     sale.setPayment(new Payment(sale, method, received, total, change, now));
     sales.saveAndFlush(sale);
+    cash.recordSale(cashShiftId, sale.getId(), method, total, operatorId, now);
     return result(sale);
   }
 

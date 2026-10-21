@@ -29,8 +29,6 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.testcontainers:junit-jupiter:2.0.5")
-    testImplementation("org.testcontainers:mysql:2.0.5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

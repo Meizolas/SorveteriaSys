@@ -33,6 +33,9 @@ public class Sale {
   @Column(name = "operator_user_id", nullable = false)
   private Long operatorUserId;
 
+  @Column(name = "cash_shift_id")
+  private Long cashShiftId;
+
   @Column(nullable = false, length = 16)
   private String status;
 
@@ -56,10 +59,17 @@ public class Sale {
 
   protected Sale() {}
 
-  public Sale(String key, String fingerprint, Long operator, BigDecimal total, Instant now) {
+  public Sale(
+      String key,
+      String fingerprint,
+      Long operator,
+      Long cashShiftId,
+      BigDecimal total,
+      Instant now) {
     this.idempotencyKey = key;
     this.requestFingerprint = fingerprint;
     this.operatorUserId = operator;
+    this.cashShiftId = cashShiftId;
     this.status = "COMPLETED";
     this.subtotal = total;
     this.discount = BigDecimal.ZERO.setScale(2);
@@ -97,6 +107,10 @@ public class Sale {
 
   public Long getOperatorUserId() {
     return operatorUserId;
+  }
+
+  public Long getCashShiftId() {
+    return cashShiftId;
   }
 
   public BigDecimal getTotal() {

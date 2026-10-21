@@ -35,7 +35,7 @@ export function SaleCompletionDialog({ sale, onClose, onNewSale }: { sale: Compl
             <Button size="large" variant="contained" onClick={printReceipt} startIcon={<OperationIcon name="print" />}>Imprimir comprovante</Button>
             <Button size="large" variant="contained" sx={{ bgcolor: moduleColors.header }} onClick={() => setExpanded(true)} startIcon={<OperationIcon name="zoom" />}>Ampliar prévia</Button>
             <Button size="large" color="success" variant="contained" onClick={onNewSale} startIcon={<OperationIcon name="plus" />}>Nova venda</Button>
-            <Typography variant="caption" sx={{ textAlign: 'center' }}>Venda demonstrativa. Nenhum registro, pagamento ou estoque foi alterado.</Typography>
+            <Typography variant="caption" sx={{ textAlign: 'center' }}>Venda registrada com sucesso. Comprovante sem valor fiscal.</Typography>
           </Stack></Grid>
         </Grid>
       </DialogContent>
