@@ -35,6 +35,12 @@ public class CatalogController {
         return catalog.createCategory(input.name());
     }
 
+    @PatchMapping("/categories/{id}")
+    CategoryData updateCategory(@PathVariable Long id,
+            @Valid @RequestBody CategoryUpdateRequest input) {
+        return catalog.updateCategory(id, input.name(), input.active());
+    }
+
     @GetMapping("/products")
     List<ProductData> products() { return catalog.products(); }
 
@@ -51,6 +57,8 @@ public class CatalogController {
     }
 
     public record CategoryRequest(@NotBlank @Size(max = 80) String name) { }
+    public record CategoryUpdateRequest(@NotBlank @Size(max = 80) String name,
+            boolean active) { }
     public record ProductRequest(@NotNull Long categoryId, @NotBlank @Size(max = 120) String name,
             @NotBlank @Size(max = 40) String sku,
             @NotNull @DecimalMin("0.00") @Digits(integer = 11, fraction = 2) BigDecimal price,

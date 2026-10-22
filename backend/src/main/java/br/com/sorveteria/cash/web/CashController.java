@@ -3,6 +3,8 @@ package br.com.sorveteria.cash.web;
 import br.com.sorveteria.access.application.UserPrincipal;
 import br.com.sorveteria.cash.application.CashService;
 import br.com.sorveteria.cash.application.CashService.CashView;
+import br.com.sorveteria.cash.application.CashHistoryService;
+import br.com.sorveteria.cash.application.CashHistoryService.ClosedShiftView;
 import br.com.sorveteria.platform.web.ApiException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -10,6 +12,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,9 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/cash")
 public class CashController {
   private final CashService cash;
+  private final CashHistoryService history;
 
-  public CashController(CashService cash) {
+  public CashController(CashService cash, CashHistoryService history) {
     this.cash = cash;
+    this.history = history;
+  }
+
+  @GetMapping("/shifts/history")
+  List<ClosedShiftView> history() {
+    return history.closedShifts();
   }
 
   @GetMapping("/current")

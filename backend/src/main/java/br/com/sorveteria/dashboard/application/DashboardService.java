@@ -91,7 +91,7 @@ public class DashboardService {
         jdbc.query(
             "SELECT cs.code, cs.opened_at, cs.opening_amount + COALESCE(SUM(CASE WHEN"
                 + " cm.movement_type IN ('SUPPLY','CASH_SALE') THEN cm.amount WHEN cm.movement_type"
-                + " = 'WITHDRAWAL' THEN -cm.amount ELSE 0 END), 0) expected_amount FROM cash_shift"
+                + " IN ('WITHDRAWAL','CASH_REFUND') THEN -cm.amount ELSE 0 END), 0) expected_amount FROM cash_shift"
                 + " cs LEFT JOIN cash_movement cm ON cm.cash_shift_id = cs.id WHERE cs.status ="
                 + " 'OPEN' GROUP BY cs.id, cs.code, cs.opened_at, cs.opening_amount",
             (rs, row) ->

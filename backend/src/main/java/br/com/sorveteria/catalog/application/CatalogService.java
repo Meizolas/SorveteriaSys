@@ -47,6 +47,18 @@ public class CatalogService {
     return new CategoryData(saved.getId(), saved.getName(), saved.isActive());
   }
 
+  @Transactional
+  public CategoryData updateCategory(Long id, String name, boolean active) {
+    String clean = name.trim();
+    ProductCategory category =
+        categories.findById(id).orElseThrow(() -> notFound("Categoria não encontrada."));
+    if (categories.existsByNameIgnoreCaseAndIdNot(clean, id)) {
+      throw conflict("Categoria já cadastrada.");
+    }
+    category.update(clean, active, Instant.now());
+    return new CategoryData(category.getId(), category.getName(), category.isActive());
+  }
+
   @Transactional(readOnly = true)
   public List<ProductData> products() {
     return products.findAllByOrderByNameAsc().stream().map(this::view).toList();

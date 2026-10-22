@@ -7,13 +7,13 @@ import { moduleColors } from '@/app/theme';
 
 export type CompletedSale = { orderNumber: string; completedAt: Date; lines: { product: { id: number; name: string; price: number }; quantity: number }[]; total: number; payment: string; received: number; change: number };
 
-export function SaleCompletionDialog({ sale, onClose, onNewSale }: { sale: CompletedSale | null; onClose: () => void; onNewSale: () => void }) {
+export function SaleCompletionDialog({ sale, onClose, onNewSale, mode = 'completion', operatorName }: { sale: CompletedSale | null; onClose: () => void; onNewSale?: () => void; mode?: 'completion' | 'history'; operatorName?: string }) {
   const mobile = useMediaQuery(useTheme().breakpoints.down('sm'));
   const { session } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [printRequested, setPrintRequested] = useState(false);
   if (!sale) return null;
-  const operator = session?.user.displayName ?? 'Operador';
+  const operator = operatorName ?? session?.user.displayName ?? 'Operador';
   const date = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Bahia' }).format(sale.completedAt);
   const time = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Bahia' }).format(sale.completedAt);
   function printReceipt() { setPrintRequested(true); window.setTimeout(() => window.print(), 50); }
@@ -22,7 +22,7 @@ export function SaleCompletionDialog({ sale, onClose, onNewSale }: { sale: Compl
     <Dialog open onClose={onClose} fullScreen={mobile} fullWidth maxWidth="md" aria-labelledby="sale-complete-title" slotProps={{ paper: { sx: { bgcolor: '#fff' } } }}>
       <Box sx={{ bgcolor: '#008b5c', color: '#fff', p: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <Box sx={{ bgcolor: '#fff', color: '#008b5c', width: 54, height: 54, borderRadius: '50%', display: 'grid', placeItems: 'center' }}><OperationIcon name="check" size={36} /></Box>
-        <Box sx={{ flex: 1 }}><Typography id="sale-complete-title" variant="h4" sx={{ fontSize: { xs: 24, sm: 32 } }}>Venda concluída</Typography><Typography sx={{ fontWeight: 800 }}>Pedido #{sale.orderNumber} · {date} às {time}</Typography></Box>
+        <Box sx={{ flex: 1 }}><Typography id="sale-complete-title" variant="h4" sx={{ fontSize: { xs: 24, sm: 32 } }}>{mode === 'history' ? 'Detalhes da venda' : 'Venda concluída'}</Typography><Typography sx={{ fontWeight: 800 }}>Pedido #{sale.orderNumber} · {date} às {time}</Typography></Box>
         <Button color="inherit" onClick={onClose} aria-label="Fechar"><OperationIcon name="close" size={30} /></Button>
       </Box>
       <DialogContent sx={{ p: { xs: 1.5, sm: 2 } }}>
@@ -34,8 +34,8 @@ export function SaleCompletionDialog({ sale, onClose, onNewSale }: { sale: Compl
             <Box sx={{ border: '1px solid', borderColor: 'divider', p: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, fontWeight: 900 }}><OperationIcon name="print" />{printRequested ? 'Impressão solicitada' : 'Ainda não impresso'}</Box>
             <Button size="large" variant="contained" onClick={printReceipt} startIcon={<OperationIcon name="print" />}>Imprimir comprovante</Button>
             <Button size="large" variant="contained" sx={{ bgcolor: moduleColors.header }} onClick={() => setExpanded(true)} startIcon={<OperationIcon name="zoom" />}>Ampliar prévia</Button>
-            <Button size="large" color="success" variant="contained" onClick={onNewSale} startIcon={<OperationIcon name="plus" />}>Nova venda</Button>
-            <Typography variant="caption" sx={{ textAlign: 'center' }}>Venda registrada com sucesso. Comprovante sem valor fiscal.</Typography>
+            {mode === 'completion' && onNewSale && <Button size="large" color="success" variant="contained" onClick={onNewSale} startIcon={<OperationIcon name="plus" />}>Nova venda</Button>}
+            <Typography variant="caption" sx={{ textAlign: 'center' }}>{mode === 'history' ? 'Reimpressão de venda registrada. Comprovante sem valor fiscal.' : 'Venda registrada com sucesso. Comprovante sem valor fiscal.'}</Typography>
           </Stack></Grid>
         </Grid>
       </DialogContent>

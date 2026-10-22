@@ -5,17 +5,21 @@ import { useAuth } from '@/features/auth/AuthProvider';
 import { moduleColors } from './theme';
 import { OperationIcon, type OperationIconName } from '@/shared/ui/OperationIcon';
 
-const navigation: { path: string; label: string; short: string; color: string; icon: OperationIconName }[] = [
+const navigation: { path: string; label: string; short: string; color: string; icon: OperationIconName; permission?: string }[] = [
   { path: '/', label: 'Visão geral', short: 'Início', color: moduleColors.overview, icon: 'home' },
   { path: '/pdv', label: 'Frente de caixa', short: 'PDV', color: moduleColors.pos, icon: 'pos' },
+  { path: '/vendas', label: 'Vendas', short: 'Vendas', color: '#50697a', icon: 'receipt' },
   { path: '/produtos', label: 'Produtos', short: 'Produtos', color: moduleColors.products, icon: 'product' },
   { path: '/estoque', label: 'Estoque', short: 'Estoque', color: moduleColors.stock, icon: 'stock' },
-  { path: '/caixa', label: 'Caixa', short: 'Caixa', color: moduleColors.cash, icon: 'cash' }
+  { path: '/caixa', label: 'Caixa', short: 'Caixa', color: moduleColors.cash, icon: 'cash' },
+  { path: '/relatorios', label: 'Relatórios', short: 'Relat.', color: '#5b657d', icon: 'chart' },
+  { path: '/usuarios', label: 'Usuários', short: 'Equipe', color: '#315b70', icon: 'user', permission: 'USER_READ' }
 ];
 
 export function AppShell() {
   const theme = useTheme(); const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { session, signOut } = useAuth(); const navigate = useNavigate(); const location = useLocation();
+  const visibleNavigation = navigation.filter((item) => !item.permission || session?.permissions.includes(item.permission));
   const now = new Date(); const date = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Bahia' }).format(now);
   const time = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Bahia' }).format(now);
   async function logout() { await signOut(); navigate('/login'); }
@@ -31,10 +35,10 @@ export function AppShell() {
         <Button color="inherit" onClick={() => void logout()} sx={{ display: { xs: 'none', sm: 'inline-flex' }, minWidth: 64 }}>{time}</Button>
       </Stack>
     </Box>
-    {!mobile && <Box component="nav" aria-label="Navegação principal" sx={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', borderBottom: '1px solid #fff' }}>{navigation.map((item) => <NavBlock key={item.path} {...item} active={location.pathname === item.path} />)}</Box>}
+    {!mobile && <Box component="nav" aria-label="Navegação principal" sx={{ display: 'grid', gridTemplateColumns: `repeat(${visibleNavigation.length}, 1fr)`, borderBottom: '1px solid #fff' }}>{visibleNavigation.map((item) => <NavBlock key={item.path} {...item} active={location.pathname === item.path} />)}</Box>}
     <Box component="main" sx={{ px: { xs: 1.5, sm: 2.5 }, py: { xs: 2, sm: 2.5 }, maxWidth: 1600, mx: 'auto' }}><Outlet /></Box>
     {!mobile && <Box component="footer" sx={{ minHeight: 38, borderTop: '1px solid', borderColor: 'divider', px: 2.5, display: 'flex', alignItems: 'center', bgcolor: '#f7fbfd' }}><Typography variant="caption" sx={{ fontWeight: 700 }}>Ambiente local</Typography><Box sx={{ flex: 1 }} /><Typography variant="caption">Sorvê · MVP</Typography></Box>}
-    {mobile && <Box component="nav" aria-label="Navegação principal" sx={{ position: 'fixed', zIndex: 1200, left: 0, right: 0, bottom: 0, pb: 'env(safe-area-inset-bottom)', bgcolor: moduleColors.overview, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', borderTop: '2px solid #fff' }}>{navigation.map((item) => <NavBlock key={item.path} {...item} active={location.pathname === item.path} mobile />)}</Box>}
+    {mobile && <Box component="nav" aria-label="Navegação principal" sx={{ position: 'fixed', zIndex: 1200, left: 0, right: 0, bottom: 0, pb: 'env(safe-area-inset-bottom)', bgcolor: moduleColors.overview, display: 'grid', gridAutoFlow: 'column', gridAutoColumns: 'minmax(68px, 1fr)', overflowX: 'auto', borderTop: '2px solid #fff' }}>{visibleNavigation.map((item) => <NavBlock key={item.path} {...item} active={location.pathname === item.path} mobile />)}</Box>}
   </Box>;
 }
 

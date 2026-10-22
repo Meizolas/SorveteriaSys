@@ -22,6 +22,7 @@ export function ProductsPage() {
   const [category, setCategory] = useState('Todas');
   const [status, setStatus] = useState('Todos');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [editing, setEditing] = useState<ProductView | null>(null);
   const [products, setProducts] = useState<ProductView[]>([]);
   const [categories, setCategories] = useState<CategoryView[]>([]);
@@ -131,8 +132,12 @@ export function ProductsPage() {
 
   return <>
     <PageHeader title="Produtos" status={<Box sx={{ bgcolor: '#dbe4ea', px: 2, py: 1, fontWeight: 900 }}>DADOS REAIS</Box>}
-      action={<Button variant="contained" color="success" size="large" onClick={openCreate}
-        startIcon={<OperationIcon name="plus" />}>Novo produto</Button>} />
+      action={<Stack direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 1 }}>
+        <Button variant="outlined" size="large" onClick={() => setCategoriesOpen(true)}
+          startIcon={<OperationIcon name="edit" />}>Categorias</Button>
+        <Button variant="contained" color="success" size="large" onClick={openCreate}
+          startIcon={<OperationIcon name="plus" />}>Novo produto</Button>
+      </Stack>} />
     <Stack direction={{ xs: 'column', md: 'row' }} sx={{ gap: 1, mb: 1.5 }}>
       <TextField value={query} onChange={(event) => setQuery(event.target.value)}
         placeholder="Buscar por nome ou código" sx={{ flex: 1 }}
@@ -163,10 +168,102 @@ export function ProductsPage() {
     </Box>)}</Stack>
     <ProductDialog open={dialogOpen} editing={editing} form={form} categories={categories}
       saving={saving} onChange={setForm} onClose={closeDialog} onSave={() => void save()} />
+    <CategoriesDialog open={categoriesOpen} categories={categories}
+      onClose={() => setCategoriesOpen(false)} onChanged={load} setNotice={setNotice} setError={setError} />
     <Snackbar open={Boolean(notice || error)} autoHideDuration={3500} onClose={() => { setNotice(''); setError(''); }}>
       <Alert severity={error ? 'error' : 'success'}>{error || notice}</Alert>
     </Snackbar>
   </>;
+}
+
+function CategoriesDialog({ open, categories, onClose, onChanged, setNotice, setError }: {
+  open: boolean; categories: CategoryView[]; onClose: () => void; onChanged: () => Promise<void>;
+  setNotice: (value: string) => void; setError: (value: string) => void;
+}) {
+  const [name, setName] = useState('');
+  const [editing, setEditing] = useState<CategoryView | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  function startEdit(category: CategoryView) {
+    setEditing(category);
+    setName(category.name);
+  }
+
+  function reset() {
+    setEditing(null);
+    setName('');
+  }
+
+  async function saveCategory() {
+    if (!name.trim()) return;
+    setSaving(true);
+    setError('');
+    try {
+      if (editing) {
+        await api.updateCategory(editing.id, { name: name.trim(), active: editing.active });
+        setNotice('Categoria atualizada com sucesso.');
+      } else {
+        await api.createCategory(name.trim());
+        setNotice('Categoria cadastrada com sucesso.');
+      }
+      reset();
+      await onChanged();
+    } catch (value) {
+      setError(value instanceof Error ? value.message : 'Não foi possível salvar a categoria.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function toggleCategory(category: CategoryView) {
+    setSaving(true);
+    setError('');
+    try {
+      await api.updateCategory(category.id, { name: category.name, active: !category.active });
+      setNotice(category.active ? 'Categoria desativada.' : 'Categoria ativada.');
+      if (editing?.id === category.id) reset();
+      await onChanged();
+    } catch (value) {
+      setError(value instanceof Error ? value.message : 'Não foi possível alterar a categoria.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function close() {
+    if (!saving) { reset(); onClose(); }
+  }
+
+  return <Dialog open={open} onClose={close} fullWidth maxWidth="sm">
+    <DialogTitle sx={{ bgcolor: '#123849', color: '#fff', fontWeight: 900 }}>Gerenciar categorias</DialogTitle>
+    <DialogContent><Stack sx={{ gap: 2, pt: 2 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 1 }}>
+        <TextField autoFocus label={editing ? 'Nome da categoria' : 'Nova categoria'} value={name}
+          onChange={(event) => setName(event.target.value)} fullWidth
+          slotProps={{ htmlInput: { maxLength: 80 } }} />
+        <Button variant="contained" disabled={saving || !name.trim()} onClick={() => void saveCategory()}>
+          {saving ? 'Salvando…' : editing ? 'Salvar' : 'Adicionar'}
+        </Button>
+        {editing && <Button onClick={reset} disabled={saving}>Cancelar edição</Button>}
+      </Stack>
+      <Box sx={{ border: '1px solid', borderColor: 'divider' }}>
+        {categories.length === 0 ? <Typography sx={{ p: 3, textAlign: 'center' }}>Nenhuma categoria cadastrada.</Typography>
+          : categories.map((category) => <Stack key={category.id} direction={{ xs: 'column', sm: 'row' }}
+            sx={{ p: 1.5, gap: 1, alignItems: { sm: 'center' }, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Box sx={{ flex: 1 }}><Typography sx={{ fontWeight: 900 }}>{category.name}</Typography>
+              <Typography variant="caption" color={category.active ? 'success.main' : 'text.secondary'}>
+                {category.active ? 'ATIVA' : 'INATIVA'}
+              </Typography></Box>
+            <Button variant="outlined" onClick={() => startEdit(category)} disabled={saving}
+              startIcon={<OperationIcon name="edit" />}>Editar</Button>
+            <Button variant="outlined" color={category.active ? 'error' : 'success'} disabled={saving}
+              onClick={() => void toggleCategory(category)}>{category.active ? 'Desativar' : 'Ativar'}</Button>
+          </Stack>)}
+      </Box>
+      <Alert severity="info">Categorias inativas deixam de aparecer em novos cadastros, mas continuam vinculadas aos produtos existentes.</Alert>
+    </Stack></DialogContent>
+    <DialogActions><Button onClick={close} disabled={saving}>Fechar</Button></DialogActions>
+  </Dialog>;
 }
 
 function ProductDialog({ open, editing, form, categories, saving, onChange, onClose, onSave }: {

@@ -10,11 +10,14 @@ paths:
     get: { summary: Busca produtos, responses: { '200': { description: Lista paginada } } }
     post: { summary: Cria produto, responses: { '201': { description: Criado } } }
   /api/stock/movements:
+    get: { summary: Lista os 100 movimentos recentes com saldos e rastreabilidade, responses: { '200': { description: Lista } } }
     post: { summary: Registra entrada ou ajuste, responses: { '201': { description: Registrado } } }
   /api/cash-shifts/current:
     get: { summary: Consulta turno atual, responses: { '200': { description: Estado atual } } }
   /api/cash-shifts:
     post: { summary: Abre turno, responses: { '201': { description: Aberto } } }
+  /api/cash-shifts/history:
+    get: { summary: Lista os 50 turnos fechados mais recentes e suas conferências, responses: { '200': { description: Lista } } }
   /api/sales:
     get: { summary: Lista vendas recentes, responses: { '200': { description: Lista } } }
     post:

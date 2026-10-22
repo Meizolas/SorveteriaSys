@@ -4,7 +4,8 @@ import { ProductsPage } from '@/features/catalog/ProductsPage';
 import * as api from '@/shared/api/operationsApi';
 
 vi.mock('@/shared/api/operationsApi', () => ({
-  listProducts: vi.fn(), listCategories: vi.fn(), createProduct: vi.fn(), updateProduct: vi.fn()
+  listProducts: vi.fn(), listCategories: vi.fn(), createProduct: vi.fn(), updateProduct: vi.fn(),
+  createCategory: vi.fn(), updateCategory: vi.fn()
 }));
 
 const product = {
@@ -41,5 +42,24 @@ describe('ProductsPage', () => {
       minimumStock: 3
     }));
     expect(await screen.findByText('Produto atualizado com sucesso.')).toBeVisible();
+  });
+
+  it('cria e edita categorias pela interface de produtos', async () => {
+    vi.mocked(api.createCategory).mockResolvedValue({ id: 3, name: 'Picolés', active: true });
+    vi.mocked(api.updateCategory).mockResolvedValue({ id: 2, name: 'Cascões premium', active: true });
+    render(<ProductsPage />);
+    expect(await screen.findAllByText('Cascão')).not.toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Categorias' }));
+
+    fireEvent.change(screen.getByLabelText('Nova categoria'), { target: { value: 'Picolés' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar' }));
+    await waitFor(() => expect(api.createCategory).toHaveBeenCalledWith('Picolés'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Editar' }));
+    fireEvent.change(screen.getByLabelText('Nome da categoria'), { target: { value: 'Cascões premium' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => expect(api.updateCategory).toHaveBeenCalledWith(2, {
+      name: 'Cascões premium', active: true
+    }));
   });
 });

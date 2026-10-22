@@ -98,6 +98,18 @@ public class InventoryService {
             now));
   }
 
+  public void returnFromCancellation(
+      Product product, BigDecimal quantity, String saleCode, Long actor, Instant now) {
+    if (!product.isTracksStock()) {
+      return;
+    }
+    StockBalance balance = balances.findByProductIdForUpdate(product.getId())
+        .orElseGet(() -> balances.saveAndFlush(new StockBalance(product, now)));
+    BigDecimal previous = balance.apply(quantity, now);
+    movements.save(new StockMovement(product, "SALE_RETURN", quantity.setScale(3), previous,
+        balance.getQuantity(), "Cancelamento venda " + saleCode, actor, now));
+  }
+
   public record MovementData(
       Long productId,
       String type,

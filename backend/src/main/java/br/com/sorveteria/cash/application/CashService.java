@@ -138,6 +138,19 @@ public class CashService {
     }
   }
 
+  public void recordCancellation(Long shiftId, Long saleId, String paymentMethod,
+      BigDecimal amount, Long operatorId, Instant at) {
+    if (!"CASH".equals(paymentMethod)) {
+      return;
+    }
+    CashShift shift = openLocked();
+    if (!shift.getId().equals(shiftId)) {
+      throw conflict("Para cancelar uma venda em dinheiro, o turno original precisa estar aberto.");
+    }
+    movements.save(new CashMovement(shift, "CASH_REFUND", amount.setScale(2),
+        "Cancelamento da venda", saleId, operatorId, at));
+  }
+
   private CashShift openLocked() {
     return shifts.lockOpen().orElseThrow(() -> conflict("Abra o caixa antes de continuar."));
   }
@@ -146,8 +159,9 @@ public class CashService {
     BigDecimal cashSales = sum(shift.getId(), "CASH_SALE");
     BigDecimal supplies = sum(shift.getId(), "SUPPLY");
     BigDecimal withdrawals = sum(shift.getId(), "WITHDRAWAL");
+    BigDecimal refunds = sum(shift.getId(), "CASH_REFUND");
     BigDecimal expectedAmount =
-        shift.getOpeningAmount().add(cashSales).add(supplies).subtract(withdrawals).setScale(2);
+        shift.getOpeningAmount().add(cashSales).add(supplies).subtract(withdrawals).subtract(refunds).setScale(2);
     BigDecimal salesTotal =
         sales.sumTotalByCashShiftId(shift.getId()).setScale(2, RoundingMode.HALF_UP);
     List<MovementView> entries =
@@ -172,6 +186,7 @@ public class CashService {
         cashSales,
         supplies,
         withdrawals,
+        refunds,
         expectedAmount,
         shift.getCountedAmount(),
         shift.getDifferenceAmount(),
@@ -188,6 +203,7 @@ public class CashService {
         .add(sum(shiftId, "CASH_SALE"))
         .add(sum(shiftId, "SUPPLY"))
         .subtract(sum(shiftId, "WITHDRAWAL"))
+        .subtract(sum(shiftId, "CASH_REFUND"))
         .setScale(2);
   }
 
@@ -226,6 +242,7 @@ public class CashService {
       BigDecimal cashSales,
       BigDecimal supplies,
       BigDecimal withdrawals,
+      BigDecimal refunds,
       BigDecimal expectedAmount,
       BigDecimal countedAmount,
       BigDecimal differenceAmount,

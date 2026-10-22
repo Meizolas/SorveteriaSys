@@ -32,7 +32,7 @@ public class CashMovement {
   @Column(nullable = false, length = 240)
   private String reason;
 
-  @Column(name = "sale_id", unique = true)
+  @Column(name = "sale_id")
   private Long saleId;
 
   @Column(name = "actor_user_id", nullable = false)

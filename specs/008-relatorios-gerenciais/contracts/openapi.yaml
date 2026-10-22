@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info: { title: Sorvê - Relatórios gerenciais, version: 0.1.0 }
+paths:
+  /api/v1/reports/sales:
+    get:
+      summary: Consolida vendas por período
+      parameters:
+        - { name: from, in: query, required: true, schema: { type: string, format: date } }
+        - { name: to, in: query, required: true, schema: { type: string, format: date } }
+      responses:
+        '200': { description: Relatório consolidado }
+        '400': { description: Período inválido }

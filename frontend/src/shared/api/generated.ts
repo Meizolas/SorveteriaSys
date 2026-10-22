@@ -15,6 +15,11 @@ export interface User {
   updatedAt: string;
 }
 
+export interface Role {
+  code: RoleCode;
+  displayName: string;
+}
+
 export interface SessionView {
   user: User;
   permissions: string[];

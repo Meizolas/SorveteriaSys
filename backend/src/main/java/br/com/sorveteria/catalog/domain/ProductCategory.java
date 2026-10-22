@@ -41,6 +41,12 @@ public class ProductCategory {
     this.updatedAt = now;
   }
 
+  public void update(String newName, boolean newActive, Instant now) {
+    name = newName.trim();
+    active = newActive;
+    updatedAt = now;
+  }
+
   public Long getId() {
     return id;
   }

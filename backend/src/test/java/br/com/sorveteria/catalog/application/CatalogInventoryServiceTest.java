@@ -49,6 +49,25 @@ class CatalogInventoryServiceTest {
   }
 
   @Test
+  void updatesCategoryNameAndStatusWithoutDuplicatingNames() {
+    ProductCategoryRepository categories = mock(ProductCategoryRepository.class);
+    ProductCategory category = new ProductCategory("Potes", Instant.now());
+    setId(category, 2L);
+    when(categories.findById(2L)).thenReturn(Optional.of(category));
+    CatalogService service = new CatalogService(
+        categories, mock(ProductRepository.class), mock(StockBalanceRepository.class));
+
+    CatalogService.CategoryData updated = service.updateCategory(2L, "Potes premium", false);
+
+    assertThat(updated.name()).isEqualTo("Potes premium");
+    assertThat(updated.active()).isFalse();
+    when(categories.existsByNameIgnoreCaseAndIdNot("Cascões", 2L)).thenReturn(true);
+    assertThatThrownBy(() -> service.updateCategory(2L, "Cascões", true))
+        .isInstanceOfSatisfying(ApiException.class,
+            exception -> assertThat(exception.code()).isEqualTo("CONFLICT"));
+  }
+
+  @Test
   void appliesEntriesAndPreventsNegativeStock() {
     ProductRepository products = mock(ProductRepository.class);
     StockBalanceRepository balances = mock(StockBalanceRepository.class);

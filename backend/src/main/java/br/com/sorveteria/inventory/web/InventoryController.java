@@ -3,6 +3,8 @@ package br.com.sorveteria.inventory.web;
 import br.com.sorveteria.access.application.UserPrincipal;
 import br.com.sorveteria.inventory.application.InventoryService;
 import br.com.sorveteria.inventory.application.InventoryService.MovementData;
+import br.com.sorveteria.inventory.application.InventoryHistoryService;
+import br.com.sorveteria.inventory.application.InventoryHistoryService.MovementView;
 import br.com.sorveteria.platform.web.ApiException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -11,9 +13,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -23,7 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/stock")
 public class InventoryController {
     private final InventoryService inventory;
-    public InventoryController(InventoryService inventory) { this.inventory = inventory; }
+    private final InventoryHistoryService history;
+    public InventoryController(InventoryService inventory, InventoryHistoryService history) {
+        this.inventory = inventory;
+        this.history = history;
+    }
+
+    @GetMapping("/movements")
+    List<MovementView> movements() { return history.recent(); }
 
     @PostMapping("/movements") @ResponseStatus(HttpStatus.CREATED)
     MovementData move(@Valid @RequestBody MovementRequest input, Authentication authentication) {

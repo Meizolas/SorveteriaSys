@@ -6,6 +6,11 @@ import br.com.sorveteria.sales.application.CheckoutService;
 import br.com.sorveteria.sales.application.CheckoutService.CheckoutCommand;
 import br.com.sorveteria.sales.application.CheckoutService.CheckoutLine;
 import br.com.sorveteria.sales.application.CheckoutService.CheckoutResult;
+import br.com.sorveteria.sales.application.SalesHistoryService;
+import br.com.sorveteria.sales.application.SalesHistoryService.SaleDetail;
+import br.com.sorveteria.sales.application.SalesHistoryService.SaleSummary;
+import br.com.sorveteria.sales.application.SaleCancellationService;
+import br.com.sorveteria.sales.application.SaleCancellationService.CancellationResult;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -15,6 +20,8 @@ import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,7 +34,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/sales")
 public class SalesController {
     private final CheckoutService checkout;
-    public SalesController(CheckoutService checkout) { this.checkout = checkout; }
+    private final SalesHistoryService history;
+    private final SaleCancellationService cancellation;
+    public SalesController(CheckoutService checkout, SalesHistoryService history,
+            SaleCancellationService cancellation) {
+        this.checkout = checkout;
+        this.history = history;
+        this.cancellation = cancellation;
+    }
+
+    @GetMapping
+    List<SaleSummary> list() { return history.list(); }
+
+    @GetMapping("/{id}")
+    SaleDetail detail(@PathVariable Long id) { return history.detail(id); }
+
+    @PostMapping("/{id}/cancel")
+    CancellationResult cancel(@PathVariable Long id, @Valid @RequestBody CancellationRequest input,
+            Authentication authentication) {
+        if (!(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", "Autenticacao necessaria.");
+        }
+        return cancellation.cancel(id, input.reason(), principal.userId());
+    }
 
     @PostMapping @ResponseStatus(HttpStatus.CREATED)
     CheckoutResult create(@RequestHeader("Idempotency-Key") String key,
@@ -45,4 +74,5 @@ public class SalesController {
             @Digits(integer = 11, fraction = 2) @DecimalMin("0.00") BigDecimal receivedAmount) { }
     public record SaleLineRequest(@NotNull Long productId,
             @NotNull @DecimalMin("0.001") @Digits(integer = 10, fraction = 3) BigDecimal quantity) { }
+    public record CancellationRequest(@NotNull @Size(min = 1, max = 240) String reason) { }
 }

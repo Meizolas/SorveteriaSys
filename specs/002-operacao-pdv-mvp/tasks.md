@@ -60,6 +60,20 @@
 - [X] T030 Criar fluxo Playwright do balcão em frontend/tests/e2e/counter-sale.spec.ts
 - [X] T031 Atualizar documentação e executar specs/002-operacao-pdv-mvp/quickstart.md
 
+## Phase 8: Convergência - histórico rastreável de estoque
+
+- [X] T032 [P] [US2] Expor consulta dos movimentos recentes de estoque com produto, ator, motivo e saldos em backend/src/main/java/br/com/sorveteria/inventory/
+- [X] T033 [P] [US2] Adicionar contrato e tipos do histórico em specs/002-operacao-pdv-mvp/contracts/openapi.yaml e frontend/src/shared/api/operationsApi.ts
+- [X] T034 [US2] Exibir contador diário e histórico responsivo na tela frontend/src/features/inventory/InventoryPage.tsx
+- [X] T035 [US2] Cobrir a consulta e a apresentação com testes automatizados e validar o fluxo no Docker
+
+## Phase 9: Convergência - fechamento e histórico de caixa
+
+- [X] T036 [P] [US3] Expor resumo dos turnos fechados com valores esperados, contados e diferenças em backend/src/main/java/br/com/sorveteria/cash/
+- [X] T037 [P] [US3] Adicionar contrato e tipos de histórico de caixa em specs/002-operacao-pdv-mvp/contracts/openapi.yaml e frontend/src/shared/api/operationsApi.ts
+- [X] T038 [US3] Manter o resumo visível após fechar e listar fechamentos anteriores em frontend/src/features/cash/CashPage.tsx
+- [X] T039 [US3] Cobrir o resumo de fechamento com testes automatizados e validar o fluxo no Docker
+
 ## Dependencies & Execution Order
 
 Setup → Foundational → Catálogo/Estoque e Caixa → Venda → Dashboard → Polish. O shell visual pode ser validado assim que T002, T004, T005 e T007 forem concluídos.

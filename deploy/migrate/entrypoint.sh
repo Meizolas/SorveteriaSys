@@ -8,7 +8,8 @@ case "$action" in
   info) command=info ;;
   validate) command=validate ;;
   apply) command=migrate ;;
-  *) echo "Uso: info | validate | apply" >&2; exit 64 ;;
+  repair) command=repair ;;
+  *) echo "Uso: info | validate | apply | repair" >&2; exit 64 ;;
 esac
 
 exec flyway \

@@ -51,6 +51,15 @@ public class Sale {
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
+  @Column(name = "canceled_at")
+  private Instant canceledAt;
+
+  @Column(name = "canceled_by")
+  private Long canceledBy;
+
+  @Column(name = "cancellation_reason", length = 240)
+  private String cancellationReason;
+
   @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL)
   private List<SaleItem> items = new ArrayList<>();
 
@@ -89,6 +98,16 @@ public class Sale {
     payment = value;
   }
 
+  public void cancel(String reason, Long actor, Instant now) {
+    if (!"COMPLETED".equals(status)) {
+      throw new IllegalStateException("A venda ja foi cancelada.");
+    }
+    status = "CANCELED";
+    cancellationReason = reason;
+    canceledBy = actor;
+    canceledAt = now;
+  }
+
   public Long getId() {
     return id;
   }
@@ -120,6 +139,12 @@ public class Sale {
   public Instant getCreatedAt() {
     return createdAt;
   }
+
+  public String getStatus() { return status; }
+
+  public Instant getCanceledAt() { return canceledAt; }
+
+  public String getCancellationReason() { return cancellationReason; }
 
   public List<SaleItem> getItems() {
     return List.copyOf(items);

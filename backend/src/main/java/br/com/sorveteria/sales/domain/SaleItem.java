@@ -62,6 +62,10 @@ public class SaleItem {
     return product.getId();
   }
 
+  public Product getProduct() {
+    return product;
+  }
+
   public String getProductSku() {
     return productSku;
   }
