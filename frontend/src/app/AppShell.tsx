@@ -13,7 +13,8 @@ const navigation: { path: string; label: string; short: string; color: string; i
   { path: '/estoque', label: 'Estoque', short: 'Estoque', color: moduleColors.stock, icon: 'stock' },
   { path: '/caixa', label: 'Caixa', short: 'Caixa', color: moduleColors.cash, icon: 'cash' },
   { path: '/relatorios', label: 'Relatórios', short: 'Relat.', color: '#5b657d', icon: 'chart' },
-  { path: '/usuarios', label: 'Usuários', short: 'Equipe', color: '#315b70', icon: 'user', permission: 'USER_READ' }
+  { path: '/usuarios', label: 'Usuários', short: 'Equipe', color: '#315b70', icon: 'user', permission: 'USER_READ' },
+  { path: '/configuracao', label: 'Configuração', short: 'Loja', color: '#3d5266', icon: 'server', permission: 'STORE_READ' }
 ];
 
 export function AppShell() {

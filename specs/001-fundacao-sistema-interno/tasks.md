@@ -129,12 +129,12 @@ description: "Tarefas de implementação da fundação do sistema interno"
 
 ### Implementation for User Story 3
 
-- [ ] T055 [P] [US3] Implementar entidades/repositórios de perfis, permissões e vínculos somente leitura em `backend/src/main/java/br/com/sorveteria/access/domain/Role.java` e `backend/src/main/java/br/com/sorveteria/access/infrastructure/RoleRepository.java`
-- [ ] T056 [US3] Implementar criação/edição/ativação/inativação e reemissão administrativa de senha temporária de 24 horas, sem reexibir segredo e com revogação/auditoria atômica, em `backend/src/main/java/br/com/sorveteria/access/application/UserAdministrationService.java`
-- [ ] T057 [US3] Implementar atribuição/substituição de perfis e invariantes do próprio/último Administrador em `backend/src/main/java/br/com/sorveteria/access/application/RoleAssignmentService.java`
+- [X] T055 [P] [US3] Implementar entidades/repositórios de perfis, permissões e vínculos somente leitura em `backend/src/main/java/br/com/sorveteria/access/domain/Role.java` e `backend/src/main/java/br/com/sorveteria/access/infrastructure/RoleRepository.java`
+- [X] T056 [US3] Implementar criação/edição/ativação/inativação e reemissão administrativa de senha temporária de 24 horas, sem reexibir segredo e com revogação/auditoria atômica, em `backend/src/main/java/br/com/sorveteria/access/application/UserAdministrationService.java`
+- [X] T057 [US3] Implementar atribuição/substituição de perfis e invariantes do próprio/último Administrador em `backend/src/main/java/br/com/sorveteria/access/application/RoleAssignmentService.java`
 - [ ] T058 [P] [US3] Implementar deduplicação por `Idempotency-Key` e conflito de fingerprint em `backend/src/main/java/br/com/sorveteria/platform/idempotency/IdempotencyService.java`
 - [ ] T059 [US3] Implementar endpoints e ETags de perfis/usuários conforme OpenAPI em `backend/src/main/java/br/com/sorveteria/access/web/UserAdministrationController.java`
-- [ ] T060 [US3] Aplicar permissões `USER_READ`, `USER_WRITE` e `ROLE_ASSIGN` nos casos de uso e rotas em `backend/src/main/java/br/com/sorveteria/access/application/AccessPermissions.java`
+- [X] T060 [US3] Aplicar permissões `USER_READ`, `USER_WRITE` e `ROLE_ASSIGN` nos casos de uso e rotas em `backend/src/main/java/br/com/sorveteria/access/application/AccessPermissions.java`
 - [ ] T061 [P] [US3] Implementar cliente e hooks de usuários/perfis com invalidação de cache em `frontend/src/features/users/usersApi.ts`
 - [ ] T062 [US3] Implementar lista, detalhe, formulário, estado e atribuição de perfis acessíveis em `frontend/src/features/users/UserListPage.tsx` e `frontend/src/features/users/UserFormPage.tsx`
 - [ ] T063 [US3] Implementar página autenticada do Operador sem capacidades administrativas e tratamento 403 em `frontend/src/app/OperatorHomePage.tsx`
@@ -158,11 +158,11 @@ description: "Tarefas de implementação da fundação do sistema interno"
 
 ### Implementation for User Story 4
 
-- [ ] T068 [P] [US4] Implementar entidade singleton e repositório da loja em `backend/src/main/java/br/com/sorveteria/store/domain/StoreConfiguration.java` e `backend/src/main/java/br/com/sorveteria/store/infrastructure/StoreRepository.java`
-- [ ] T069 [US4] Implementar criação/atualização, validações, ETag e auditoria atômica em `backend/src/main/java/br/com/sorveteria/store/application/StoreConfigurationService.java`
-- [ ] T070 [US4] Implementar `GET/PUT /api/v1/store` e permissões `STORE_READ/STORE_WRITE` em `backend/src/main/java/br/com/sorveteria/store/web/StoreController.java`
+- [X] T068 [P] [US4] Implementar entidade singleton e repositório da loja em `backend/src/main/java/br/com/sorveteria/store/domain/StoreConfiguration.java` e `backend/src/main/java/br/com/sorveteria/store/infrastructure/StoreRepository.java`
+- [X] T069 [US4] Implementar criação/atualização, validações, ETag e auditoria atômica em `backend/src/main/java/br/com/sorveteria/store/application/StoreConfigurationService.java`
+- [X] T070 [US4] Implementar `GET/PUT /api/v1/store` e permissões `STORE_READ/STORE_WRITE` em `backend/src/main/java/br/com/sorveteria/store/web/StoreController.java`
 - [ ] T071 [P] [US4] Implementar cliente e hooks de configuração em `frontend/src/features/store/storeApi.ts`
-- [ ] T072 [US4] Implementar formulário acessível com estados vazio, validação, conflito, falha e sucesso confirmado em `frontend/src/features/store/StoreConfigurationPage.tsx`
+- [X] T072 [US4] Implementar formulário acessível com estados vazio, validação, conflito, falha e sucesso confirmado em `frontend/src/features/store/StoreConfigurationPage.tsx`
 - [ ] T073 [US4] Formatar datas no fuso e moeda BRL vindos da loja sem alterar instantes em `frontend/src/shared/ui/localization.ts`
 
 **Checkpoint**: a loja única está configurada e alterações concorrentes não se sobrescrevem.

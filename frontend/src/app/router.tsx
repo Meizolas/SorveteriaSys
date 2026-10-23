@@ -10,6 +10,7 @@ import { PosPage } from '@/features/pos/PosPage';
 import { SalesHistoryPage } from '@/features/sales/SalesHistoryPage';
 import { ReportsPage } from '@/features/reports/ReportsPage';
 import { UserListPage } from '@/features/users/UserListPage';
+import { StoreConfigurationPage } from '@/features/store/StoreConfigurationPage';
 import { AppShell } from './AppShell';
 
 export const router = createBrowserRouter([
@@ -27,7 +28,8 @@ export const router = createBrowserRouter([
         { path: '/estoque', element: <InventoryPage /> },
         { path: '/caixa', element: <CashPage /> },
         { path: '/relatorios', element: <ReportsPage /> },
-        { path: '/usuarios', element: <UserListPage /> }
+        { path: '/usuarios', element: <UserListPage /> },
+        { path: '/configuracao', element: <StoreConfigurationPage /> }
       ]
     }]
   },
