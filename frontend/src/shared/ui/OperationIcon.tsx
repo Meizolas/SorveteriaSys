@@ -25,15 +25,17 @@ import Check from '@mui/icons-material/Check';
 import Close from '@mui/icons-material/Close';
 import PrintOutlined from '@mui/icons-material/PrintOutlined';
 import ZoomInOutlined from '@mui/icons-material/ZoomInOutlined';
+import ManageSearchOutlined from '@mui/icons-material/ManageSearchOutlined';
 
-export type OperationIconName = 'home' | 'pos' | 'product' | 'stock' | 'cash' | 'user' | 'search' | 'plus' | 'minus' | 'trash' | 'warning' | 'chart' | 'cart' | 'clock' | 'wallet' | 'receipt' | 'edit' | 'lock' | 'swap' | 'server' | 'chevron' | 'check' | 'close' | 'print' | 'zoom';
+export type OperationIconName = 'home' | 'pos' | 'product' | 'stock' | 'cash' | 'user' | 'search' | 'plus' | 'minus' | 'trash' | 'warning' | 'chart' | 'cart' | 'clock' | 'wallet' | 'receipt' | 'edit' | 'lock' | 'swap' | 'server' | 'chevron' | 'check' | 'close' | 'print' | 'zoom' | 'audit';
 
 const icons: Record<OperationIconName, ComponentType<SvgIconProps>> = {
   home: HomeOutlined, pos: PointOfSaleOutlined, product: LocalOfferOutlined, stock: Inventory2Outlined, cash: PaymentsOutlined,
   user: PersonOutlineOutlined, search: Search, plus: Add, minus: Remove, trash: DeleteOutlineOutlined, warning: WarningAmber,
   chart: BarChart, cart: ShoppingCartOutlined, clock: ScheduleOutlined, wallet: AccountBalanceWalletOutlined,
   receipt: ReceiptLongOutlined, edit: EditOutlined, lock: LockOutlined, swap: SwapVert, server: DnsOutlined,
-  chevron: ChevronRight, check: Check, close: Close, print: PrintOutlined, zoom: ZoomInOutlined
+  chevron: ChevronRight, check: Check, close: Close, print: PrintOutlined, zoom: ZoomInOutlined,
+  audit: ManageSearchOutlined
 };
 
 export function OperationIcon({ name, size = 28, ...props }: { name: OperationIconName; size?: number } & Omit<SvgIconProps, 'fontSize'>) {

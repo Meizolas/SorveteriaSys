@@ -11,6 +11,7 @@ import { SalesHistoryPage } from '@/features/sales/SalesHistoryPage';
 import { ReportsPage } from '@/features/reports/ReportsPage';
 import { UserListPage } from '@/features/users/UserListPage';
 import { StoreConfigurationPage } from '@/features/store/StoreConfigurationPage';
+import { AuditPage } from '@/features/audit/AuditPage';
 import { AppShell } from './AppShell';
 
 export const router = createBrowserRouter([
@@ -29,7 +30,8 @@ export const router = createBrowserRouter([
         { path: '/caixa', element: <CashPage /> },
         { path: '/relatorios', element: <ReportsPage /> },
         { path: '/usuarios', element: <UserListPage /> },
-        { path: '/configuracao', element: <StoreConfigurationPage /> }
+        { path: '/configuracao', element: <StoreConfigurationPage /> },
+        { path: '/auditoria', element: <AuditPage /> }
       ]
     }]
   },

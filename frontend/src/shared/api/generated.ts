@@ -2,6 +2,27 @@
 export type RoleCode = 'ADMINISTRATOR' | 'OPERATOR';
 export type AuditOutcome = 'SUCCEEDED' | 'DENIED' | 'FAILED';
 
+export interface AuditEvent {
+  id: string;
+  occurredAt: string;
+  action: string;
+  outcome: AuditOutcome;
+  origin: string;
+  actorUserId: string | null;
+  actorLogin: string | null;
+  actorName: string | null;
+  targetType: string | null;
+  targetId: string | null;
+  reason: string | null;
+  correlationId: string;
+  changes: { before: Record<string, unknown>; after: Record<string, unknown> };
+}
+
+export interface AuditPage {
+  items: AuditEvent[];
+  nextCursor: string | null;
+}
+
 export interface User {
   id: string;
   login: string;

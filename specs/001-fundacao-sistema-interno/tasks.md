@@ -184,11 +184,11 @@ description: "Tarefas de implementação da fundação do sistema interno"
 
 ### Implementation for User Story 5
 
-- [ ] T078 [P] [US5] Implementar repositório paginado por `(occurred_at,id)` e filtros indexados em `backend/src/main/java/br/com/sorveteria/audit/infrastructure/AuditEventRepository.java`
-- [ ] T079 [US5] Implementar consulta allowlisted e permissão `AUDIT_READ` em `backend/src/main/java/br/com/sorveteria/audit/application/AuditQueryService.java`
-- [ ] T080 [US5] Implementar `GET /api/v1/audit-events` conforme OpenAPI em `backend/src/main/java/br/com/sorveteria/audit/web/AuditController.java`
-- [ ] T081 [P] [US5] Implementar cliente e cursor de auditoria em `frontend/src/features/audit/auditApi.ts`
-- [ ] T082 [US5] Implementar tela acessível de filtros, tabela paginada e detalhe sanitizado em `frontend/src/features/audit/AuditPage.tsx`
+- [X] T078 [P] [US5] Implementar repositório paginado por `(occurred_at,id)` e filtros indexados em `backend/src/main/java/br/com/sorveteria/audit/infrastructure/AuditEventRepository.java`
+- [X] T079 [US5] Implementar consulta allowlisted e permissão `AUDIT_READ` em `backend/src/main/java/br/com/sorveteria/audit/application/AuditQueryService.java`
+- [X] T080 [US5] Implementar `GET /api/v1/audit-events` conforme OpenAPI em `backend/src/main/java/br/com/sorveteria/audit/web/AuditController.java`
+- [X] T081 [P] [US5] Implementar cliente e cursor de auditoria em `frontend/src/features/audit/auditApi.ts`
+- [X] T082 [US5] Implementar tela acessível de filtros, tabela paginada e detalhe sanitizado em `frontend/src/features/audit/AuditPage.tsx`
 - [ ] T083 [US5] Implementar retenção transacional em lotes e `retention_run` em `backend/src/main/java/br/com/sorveteria/audit/application/AuditRetentionService.java`
 - [ ] T084 [US5] Implementar comando `audit-retention` com `--dry-run`, cutoff e batch size validados em `backend/src/main/java/br/com/sorveteria/audit/cli/AuditRetentionCommand.java`
 - [ ] T085 [US5] Configurar serviço one-shot com secret exclusivo `app_retention` em `deploy/compose.production.yaml`
