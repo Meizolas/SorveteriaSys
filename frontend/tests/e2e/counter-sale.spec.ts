@@ -24,6 +24,7 @@ test.beforeEach(async ({ page }) => {
     if (path === '/api/v1/session' && method === 'GET') return authenticated ? json(route, session) : json(route, { title: 'Não autenticado', status: 401, code: 'UNAUTHENTICATED' }, 401);
     if (path === '/api/v1/products') return json(route, [{ ...product, stock: saleCreated ? 19 : 20 }]);
     if (path === '/api/v1/cash/current') return json(route, cashOpen ? cashView() : undefined);
+    if (path === '/api/v1/cash/shifts/history') return json(route, []);
     if (path === '/api/v1/cash/shifts' && method === 'POST') { cashOpen = true; return json(route, cashView()); }
     if (path === '/api/v1/cash/close' && method === 'POST') { cashOpen = false; return json(route, { ...cashView(), status: 'CLOSED' }); }
     if (path === '/api/v1/sales' && method === 'POST') {

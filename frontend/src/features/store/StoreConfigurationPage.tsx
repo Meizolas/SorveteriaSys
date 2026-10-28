@@ -43,7 +43,7 @@ export function StoreConfigurationPage() {
       }
     } finally { setLoading(false); }
   }
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function change(field: keyof Form, value: string) { setForm((current) => ({ ...current, [field]: value })); }
   async function save() {

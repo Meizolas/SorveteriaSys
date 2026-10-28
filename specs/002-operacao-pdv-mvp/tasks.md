@@ -74,6 +74,15 @@
 - [X] T038 [US3] Manter o resumo visível após fechar e listar fechamentos anteriores em frontend/src/features/cash/CashPage.tsx
 - [X] T039 [US3] Cobrir o resumo de fechamento com testes automatizados e validar o fluxo no Docker
 
+## Phase 10: Validação integrada do MVP
+
+- [X] T040 Validar no ambiente Docker o fluxo real de login, abertura de caixa, venda, comprovante, estoque, dashboard, histórico, cancelamento, relatórios, auditoria, fechamento e reabertura em frontend/tests/e2e/real-mvp-flow.spec.ts
+
+## Phase 11: Dados para demonstração
+
+- [X] T041 Ampliar o catálogo sintético idempotente com categorias, preços, estoque e alertas demonstráveis em backend/src/main/java/br/com/sorveteria/catalog/application/DemoCatalogProvisioning.java
+- [X] T042 Cobrir a consistência da carga demonstrativa em backend/src/test/java/br/com/sorveteria/catalog/application/DemoCatalogProvisioningTest.java
+
 ## Dependencies & Execution Order
 
 Setup → Foundational → Catálogo/Estoque e Caixa → Venda → Dashboard → Polish. O shell visual pode ser validado assim que T002, T004, T005 e T007 forem concluídos.
