@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: Sorvê - Trabalhos de impressão
+  version: 0.1.0
+  license: { name: Proprietary, identifier: LicenseRef-Proprietary }
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/sales/{saleId}/print-jobs:
+    parameters:
+      - name: saleId
+        in: path
+        required: true
+        schema: { type: integer, format: int64 }
+    post:
+      operationId: preparePrintJob
+      summary: Prepara uma primeira via ou reimpressão rastreável
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mode]
+              properties:
+                mode: { type: string, enum: [SYSTEM_DIALOG] }
+                kind: { type: string, enum: [FIRST_COPY, REPRINT] }
+      responses:
+        '201': { description: Trabalho preparado }
+        '200': { description: Trabalho idempotente já existente }
+        '404': { description: Venda não encontrada }
+        '409': { description: Chave reutilizada para outra intenção }
+    get:
+      operationId: listPrintJobs
+      summary: Lista o histórico de impressão da venda
+      responses:
+        '200': { description: Trabalhos mais recentes da venda }
+        '404': { description: Venda não encontrada }
+  /api/v1/printing/capabilities:
+    get:
+      operationId: getPrintingCapabilities
+      summary: Informa o modo de impressão disponível no terminal
+      responses:
+        '200': { description: Capacidades e orientação de configuração }
+        '401': { description: Autenticação necessária }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

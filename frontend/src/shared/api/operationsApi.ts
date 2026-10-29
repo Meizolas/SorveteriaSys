@@ -68,6 +68,25 @@ export const cancelSale = (id: number, reason: string) => apiRequest<{
   id: number; code: string; status: string; canceledAt: string; cancellationReason: string;
 }>(`/api/v1/sales/${id}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) });
 
+export type PrintJobView = {
+  id: number; operationKey: string; saleId: number; kind: 'FIRST_COPY' | 'REPRINT';
+  mode: 'SYSTEM_DIALOG'; status: 'PREPARED' | 'SENT' | 'FAILED' | 'UNKNOWN';
+  errorCode?: string; createdAt: string;
+};
+export const preparePrintJob = (saleId: number, operationKey: string, kind?: 'REPRINT') =>
+  apiRequest<PrintJobView>(`/api/v1/sales/${saleId}/print-jobs`, {
+    method: 'POST', headers: { 'Idempotency-Key': operationKey },
+    body: JSON.stringify({ mode: 'SYSTEM_DIALOG', kind })
+  });
+export const listPrintJobs = (saleId: number) =>
+  apiRequest<PrintJobView[]>(`/api/v1/sales/${saleId}/print-jobs`);
+
+export type PrintingCapabilities = {
+  mode: 'SYSTEM_DIALOG'; paperWidthMm: number; directConnectorAvailable: boolean; guidance: string;
+};
+export const getPrintingCapabilities = () =>
+  apiRequest<PrintingCapabilities>('/api/v1/printing/capabilities');
+
 export type CashMovementView = {
   id: number; type: 'OPENING' | 'SUPPLY' | 'WITHDRAWAL' | 'CASH_SALE' | 'CASH_REFUND';
   amount: number; reason: string; saleId?: number; createdAt: string;

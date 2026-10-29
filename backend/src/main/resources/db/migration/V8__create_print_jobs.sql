@@ -1,0 +1,20 @@
+CREATE TABLE print_job (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    operation_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    sale_id BIGINT NOT NULL,
+    requested_by BIGINT UNSIGNED NOT NULL,
+    job_kind VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    print_mode VARCHAR(24) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    status VARCHAR(16) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    error_code VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_print_job_operation (operation_key),
+    KEY ix_print_job_sale_time (sale_id, created_at, id),
+    CONSTRAINT fk_print_job_sale FOREIGN KEY (sale_id) REFERENCES sale(id),
+    CONSTRAINT fk_print_job_user FOREIGN KEY (requested_by) REFERENCES app_user(id),
+    CONSTRAINT ck_print_job_kind CHECK (job_kind IN ('FIRST_COPY', 'REPRINT')),
+    CONSTRAINT ck_print_job_mode CHECK (print_mode IN ('SYSTEM_DIALOG', 'DIRECT_CONNECTOR')),
+    CONSTRAINT ck_print_job_status CHECK (status IN ('PREPARED', 'SENT', 'FAILED', 'UNKNOWN'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

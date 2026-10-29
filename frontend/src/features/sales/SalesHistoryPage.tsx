@@ -118,6 +118,7 @@ function CancellationDialog({ sale, onClose, onDone }: { sale: SaleSummaryView |
 
 function receiptFrom(sale: SaleDetailView): CompletedSale {
   return {
+    saleId: sale.id,
     orderNumber: sale.code,
     completedAt: new Date(sale.completedAt),
     lines: sale.items.map((item) => ({

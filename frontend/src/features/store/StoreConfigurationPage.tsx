@@ -6,6 +6,7 @@ import type { Store } from '@/shared/api/generated';
 import { ApiProblem } from '@/shared/api/problem';
 import { OperationIcon } from '@/shared/ui/OperationIcon';
 import * as api from './storeApi';
+import { getPrintingCapabilities, type PrintingCapabilities } from '@/shared/api/operationsApi';
 
 type Form = {
   tradeName: string; legalName: string; taxId: string; postalCode: string; street: string;
@@ -25,6 +26,7 @@ export function StoreConfigurationPage() {
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const [printing, setPrinting] = useState<PrintingCapabilities | null>(null);
 
   function fill(value: Store) {
     setStore(value);
@@ -43,7 +45,10 @@ export function StoreConfigurationPage() {
       }
     } finally { setLoading(false); }
   }
-  useEffect(() => { void load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    void load();
+    void getPrintingCapabilities().then(setPrinting).catch(() => setPrinting(null));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function change(field: keyof Form, value: string) { setForm((current) => ({ ...current, [field]: value })); }
   async function save() {
@@ -108,6 +113,15 @@ export function StoreConfigurationPage() {
           <Typography>{form.city ? `${form.city} — ${form.stateCode}` : 'Endereço não informado'}</Typography>
           <Typography sx={{ mt: 2 }}>Moeda: BRL</Typography><Typography>Fuso: {form.timeZone}</Typography></Box>
         <Alert severity="info">Razão social, CNPJ e endereço são opcionais no MVP. Estes dados ainda não habilitam emissão fiscal.</Alert>
+        <Box sx={{ bgcolor: '#fff', border: '1px solid', borderColor: 'divider', p: 2 }}>
+          <Stack direction="row" sx={{ alignItems: 'center', gap: 1, mb: 1 }}>
+            <OperationIcon name="print" /><Typography variant="h6">Impressão térmica</Typography>
+          </Stack>
+          <Typography sx={{ fontWeight: 900 }}>{printing ? `Papel ${printing.paperWidthMm} mm` : 'Verificando configuração…'}</Typography>
+          <Typography variant="body2">{printing?.guidance ?? 'Use a janela de impressão do navegador.'}</Typography>
+          <Box sx={{ mt: 1, bgcolor: '#d9f2e7', color: '#07563b', px: 1, py: .6, fontWeight: 900 }}>JANELA DO SISTEMA ATIVA</Box>
+          <Typography variant="caption" color="text.secondary">Conexão direta ESC/POS: {printing?.directConnectorAvailable ? 'disponível' : 'não configurada'}</Typography>
+        </Box>
         {store && <Typography variant="caption" color="text.secondary">Versão {store.version} · última atualização {new Date(store.updatedAt).toLocaleString('pt-BR')}</Typography>}
       </Stack>
     </Stack>

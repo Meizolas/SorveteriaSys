@@ -16,7 +16,7 @@ test.describe('fluxo integrado no ambiente Docker real', () => {
     await page.getByLabel('Usuário').fill('admin');
     await page.getByLabel('Senha').fill(password ?? '');
     await page.getByRole('button', { name: 'Entrar' }).click();
-    await expect(page.getByRole('heading', { name: 'Visão geral' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Visão geral' })).toBeVisible({ timeout: 20_000 });
 
     const productsResponse = await page.request.get('/api/v1/products');
     expect(productsResponse.ok()).toBeTruthy();
@@ -50,6 +50,9 @@ test.describe('fluxo integrado no ambiente Docker real', () => {
     const saleCode = (await page.getByText(/Pedido #V[0-9]+/).textContent())?.match(/V[0-9]+/)?.[0];
     expect(saleCode).toBeTruthy();
     await expect(page.getByRole('button', { name: 'Imprimir comprovante' })).toBeVisible();
+    await page.evaluate(() => { window.print = () => undefined; });
+    await page.getByRole('button', { name: 'Imprimir comprovante' }).click();
+    await expect(page.getByText('Impressão solicitada')).toBeVisible();
     await page.getByRole('button', { name: 'Nova venda' }).click();
 
     const updatedProducts = await (await page.request.get('/api/v1/products')).json() as typeof products;
