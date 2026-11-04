@@ -10,11 +10,11 @@ import { CategoryTag } from '@/shared/ui/OperationalUi';
 const categoryColors = ['#0877e8', '#008f83', '#477ba0', '#cf8b00', '#71377e'];
 type ProductForm = {
   name: string; sku: string; categoryId: number; price: string;
-  minimumStock: string; tracksStock: boolean; active: boolean;
+  unit: 'UNIT' | 'KG'; minimumStock: string; tracksStock: boolean; active: boolean;
 };
 const emptyForm = (): ProductForm => ({
   name: '', sku: '', categoryId: 0, price: '10,00', minimumStock: '5',
-  tracksStock: true, active: true
+  unit: 'UNIT', tracksStock: true, active: true
 });
 
 export function ProductsPage() {
@@ -65,6 +65,7 @@ export function ProductsPage() {
       sku: product.sku,
       categoryId: product.categoryId,
       price: product.price.toFixed(2).replace('.', ','),
+      unit: product.unit,
       minimumStock: String(product.minimumStock).replace('.', ','),
       tracksStock: product.tracksStock,
       active: product.active
@@ -89,13 +90,13 @@ export function ProductsPage() {
     try {
       if (editing) {
         await api.updateProduct(editing.id, {
-          categoryId: form.categoryId, name: form.name.trim(), price, active: form.active,
+          categoryId: form.categoryId, name: form.name.trim(), unit: form.unit, price, active: form.active,
           tracksStock: form.tracksStock, minimumStock
         });
         setNotice('Produto atualizado com sucesso.');
       } else {
         await api.createProduct({
-          categoryId: form.categoryId, name: form.name.trim(), sku: form.sku.trim(), price,
+          categoryId: form.categoryId, name: form.name.trim(), sku: form.sku.trim(), unit: form.unit, price,
           tracksStock: form.tracksStock, minimumStock
         });
         setNotice('Produto cadastrado com sucesso.');
@@ -112,7 +113,7 @@ export function ProductsPage() {
   async function toggle(product: ProductView) {
     try {
       await api.updateProduct(product.id, {
-        categoryId: product.categoryId, name: product.name, price: product.price,
+        categoryId: product.categoryId, name: product.name, unit: product.unit, price: product.price,
         active: !product.active, tracksStock: product.tracksStock,
         minimumStock: product.minimumStock
       });
@@ -155,15 +156,15 @@ export function ProductsPage() {
         <TableBody>{filtered.map((product) => <TableRow key={product.id} hover>
           <TableCell><Typography sx={{ fontWeight: 900 }}>{product.name}</Typography><Typography variant="caption">{product.sku}</Typography></TableCell>
           <TableCell><CategoryTag color={colorFor(product.category)}>{product.category}</CategoryTag></TableCell>
-          <TableCell sx={{ fontWeight: 900 }}>{brl.format(product.price)}</TableCell>
-          <TableCell sx={{ fontWeight: 900, bgcolor: product.stock <= product.minimumStock ? '#fff0bd' : 'transparent' }}>{Number(product.stock)} un.</TableCell>
+          <TableCell sx={{ fontWeight: 900 }}>{brl.format(product.price)} / {product.unit === 'KG' ? 'kg' : 'un.'}</TableCell>
+          <TableCell sx={{ fontWeight: 900, bgcolor: product.stock <= product.minimumStock ? '#fff0bd' : 'transparent' }}>{Number(product.stock)} {product.unit === 'KG' ? 'kg' : 'un.'}</TableCell>
           <TableCell><Box sx={{ bgcolor: product.active ? 'success.main' : '#647687', color: '#fff', p: 1, textAlign: 'center', fontWeight: 900 }}>{product.active ? 'ATIVO' : 'INATIVO'}</Box></TableCell>
           <TableCell>{actions(product)}</TableCell>
         </TableRow>)}</TableBody>
       </Table>
     </TableContainer>
     <Stack sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>{filtered.map((product) => <Box key={product.id} sx={{ bgcolor: '#fff', border: '1px solid', borderColor: 'divider', p: 1.5 }}>
-      <Stack direction="row" sx={{ gap: 1.5 }}><OperationIcon name="product" size={43} /><Box sx={{ flex: 1 }}><Typography sx={{ fontWeight: 900 }}>{product.name}</Typography><Typography variant="caption">{product.sku}</Typography><Typography sx={{ fontSize: 22, fontWeight: 900 }}>{brl.format(product.price)}</Typography></Box><Box><Typography sx={{ fontWeight: 900 }}>{Number(product.stock)} un.</Typography><Box sx={{ bgcolor: product.active ? 'success.main' : '#647687', color: '#fff', p: .6, mt: 1, fontWeight: 900 }}>{product.active ? 'ATIVO' : 'INATIVO'}</Box></Box></Stack>
+      <Stack direction="row" sx={{ gap: 1.5 }}><OperationIcon name="product" size={43} /><Box sx={{ flex: 1 }}><Typography sx={{ fontWeight: 900 }}>{product.name}</Typography><Typography variant="caption">{product.sku}</Typography><Typography sx={{ fontSize: 22, fontWeight: 900 }}>{brl.format(product.price)} / {product.unit === 'KG' ? 'kg' : 'un.'}</Typography></Box><Box><Typography sx={{ fontWeight: 900 }}>{Number(product.stock)} {product.unit === 'KG' ? 'kg' : 'un.'}</Typography><Box sx={{ bgcolor: product.active ? 'success.main' : '#647687', color: '#fff', p: .6, mt: 1, fontWeight: 900 }}>{product.active ? 'ATIVO' : 'INATIVO'}</Box></Box></Stack>
       <CategoryTag color={colorFor(product.category)}>{product.category}</CategoryTag>{actions(product, true)}
     </Box>)}</Stack>
     <ProductDialog open={dialogOpen} editing={editing} form={form} categories={categories}
@@ -280,6 +281,10 @@ function ProductDialog({ open, editing, form, categories, saving, onChange, onCl
       <TextField select label="Categoria" value={form.categoryId}
         onChange={(event) => onChange({ ...form, categoryId: Number(event.target.value) })} required>
         {categories.filter((item) => item.active).map((item) => <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>)}
+      </TextField>
+      <TextField select label="Unidade de venda" value={form.unit}
+        onChange={(event) => onChange({ ...form, unit: event.target.value as 'UNIT' | 'KG' })}>
+        <MenuItem value="UNIT">Unidade</MenuItem><MenuItem value="KG">Quilograma (preço por kg)</MenuItem>
       </TextField>
       <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ gap: 2 }}>
         <TextField fullWidth label="Preço" value={form.price} inputMode="decimal"

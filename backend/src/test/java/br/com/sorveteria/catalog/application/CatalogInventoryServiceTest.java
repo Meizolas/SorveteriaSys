@@ -39,7 +39,7 @@ class CatalogInventoryServiceTest {
     CatalogService service = new CatalogService(categories, products, balances);
 
     CatalogService.ProductData created = service.createProduct(
-        2L, "Pote 500 ml", " pote-500 ", new BigDecimal("25.00"), true,
+        2L, "Pote 500 ml", " pote-500 ", "UNIT", new BigDecimal("25.00"), true,
         new BigDecimal("2.000"));
 
     assertThat(created.id()).isEqualTo(9L);
@@ -92,7 +92,7 @@ class CatalogInventoryServiceTest {
   private static Product product(Long id) {
     ProductCategory category = new ProductCategory("Potes", Instant.now());
     setId(category, 2L);
-    Product product = new Product(category, "Pote 500 ml", "POTE-500",
+    Product product = new Product(category, "Pote 500 ml", "POTE-500", "UNIT",
         new BigDecimal("25.00"), true, BigDecimal.ZERO.setScale(3), Instant.now());
     setId(product, id);
     return product;

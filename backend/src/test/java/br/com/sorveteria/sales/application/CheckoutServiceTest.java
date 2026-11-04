@@ -77,10 +77,43 @@ class CheckoutServiceTest {
             exception -> assertThat(exception.code()).isEqualTo("IDEMPOTENCY_CONFLICT"));
   }
 
+  @Test
+  void acceptsFractionalQuantityForWeightedProduct() {
+    SaleRepository sales = mock(SaleRepository.class);
+    ProductRepository products = mock(ProductRepository.class);
+    InventoryService inventory = mock(InventoryService.class);
+    CashService cash = mock(CashService.class);
+    Product product = product(10L, "KG");
+    when(sales.findByIdempotencyKey(any())).thenReturn(Optional.empty());
+    when(sales.saveAndFlush(any())).thenAnswer(call -> {
+      Sale sale = call.getArgument(0);
+      setId(sale, 8L);
+      return sale;
+    });
+    when(products.findById(10L)).thenReturn(Optional.of(product));
+    when(cash.requireOpenShiftId()).thenReturn(3L);
+    CheckoutService service = new CheckoutService(sales, products, inventory, cash);
+
+    CheckoutService.CheckoutResult result = service.checkout(
+        "5f3c6383-4b96-46d4-8587-11cffbb40112",
+        new CheckoutService.CheckoutCommand(
+            List.of(new CheckoutService.CheckoutLine(10L, new BigDecimal("0.350"))), "PIX", null),
+        1L);
+
+    assertThat(result.total()).isEqualByComparingTo("4.38");
+    assertThat(result.items().getFirst().quantity()).isEqualByComparingTo("0.350");
+    verify(inventory).consumeForSale(product, new BigDecimal("0.350"), "V000008", 1L,
+        result.completedAt());
+  }
+
   private static Product product(Long id) {
+    return product(id, "UNIT");
+  }
+
+  private static Product product(Long id, String unit) {
     ProductCategory category = new ProductCategory("Cascões", Instant.now());
     setId(category, 1L);
-    Product product = new Product(category, "Cascão especial", "CAS-001",
+    Product product = new Product(category, "Cascão especial", "CAS-001", unit,
         new BigDecimal("12.50"), true, new BigDecimal("3.000"), Instant.now());
     setId(product, id);
     return product;

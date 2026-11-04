@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Table(name = "sale_item")
@@ -55,7 +56,7 @@ public class SaleItem {
     this.unit = product.getUnit();
     this.unitPrice = product.getSalePrice().setScale(2);
     this.quantity = quantity.setScale(3);
-    this.lineTotal = unitPrice.multiply(quantity).setScale(2);
+    this.lineTotal = unitPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP);
   }
 
   public Long getProductId() {
@@ -72,6 +73,10 @@ public class SaleItem {
 
   public String getProductName() {
     return productName;
+  }
+
+  public String getUnit() {
+    return unit;
   }
 
   public BigDecimal getUnitPrice() {

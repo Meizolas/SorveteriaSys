@@ -3,7 +3,7 @@ import { apiRequest } from './apiClient';
 export type CategoryView = { id: number; name: string; active: boolean };
 export type ProductView = {
   id: number; name: string; sku: string; categoryId: number; category: string;
-  price: number; unit: string; active: boolean; tracksStock: boolean;
+  price: number; unit: 'UNIT' | 'KG'; active: boolean; tracksStock: boolean;
   minimumStock: number; stock: number; version: number;
 };
 
@@ -18,11 +18,11 @@ export const updateCategory = (id: number, input: { name: string; active: boolea
 export const listProducts = () => apiRequest<ProductView[]>('/api/v1/products');
 export const createProduct = (input: {
   categoryId: number; name: string; sku: string; price: number;
-  tracksStock: boolean; minimumStock: number;
+  unit: 'UNIT' | 'KG'; tracksStock: boolean; minimumStock: number;
 }) => apiRequest<ProductView>('/api/v1/products', { method: 'POST', body: JSON.stringify(input) });
 export const updateProduct = (id: number, input: {
   categoryId: number; name: string; price: number; active: boolean;
-  tracksStock: boolean; minimumStock: number;
+  unit: 'UNIT' | 'KG'; tracksStock: boolean; minimumStock: number;
 }) => apiRequest<ProductView>(`/api/v1/products/${id}`, { method: 'PATCH', body: JSON.stringify(input) });
 export const createStockMovement = (input: {
   productId: number; type: 'ENTRY' | 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT';
@@ -40,7 +40,7 @@ export const listStockMovements = () =>
 
 export type SaleResult = {
   id: number; code: string; total: number; completedAt: string;
-  items: { productId: number; sku: string; name: string; unitPrice: number; quantity: number; lineTotal: number }[];
+  items: { productId: number; sku: string; name: string; unit: 'UNIT' | 'KG'; unitPrice: number; quantity: number; lineTotal: number }[];
   paymentMethod: 'CASH' | 'PIX' | 'CARD'; receivedAmount: number; changeAmount: number;
 };
 
@@ -60,7 +60,7 @@ export type SaleDetailView = {
   id: number; code: string; completedAt: string; status: string; total: number;
   paymentMethod: 'CASH' | 'PIX' | 'CARD'; receivedAmount: number; changeAmount: number;
   operator: string; canceledAt?: string; cancellationReason?: string;
-  items: { productId: number; sku: string; name: string; unitPrice: number; quantity: number; lineTotal: number }[];
+  items: { productId: number; sku: string; name: string; unit: 'UNIT' | 'KG'; unitPrice: number; quantity: number; lineTotal: number }[];
 };
 export const listSales = () => apiRequest<SaleSummaryView[]>('/api/v1/sales');
 export const getSale = (id: number) => apiRequest<SaleDetailView>(`/api/v1/sales/${id}`);

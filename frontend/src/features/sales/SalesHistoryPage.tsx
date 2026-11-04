@@ -122,7 +122,7 @@ function receiptFrom(sale: SaleDetailView): CompletedSale {
     orderNumber: sale.code,
     completedAt: new Date(sale.completedAt),
     lines: sale.items.map((item) => ({
-      product: { id: item.productId, name: item.name, price: Number(item.unitPrice) },
+      product: { id: item.productId, name: item.name, price: Number(item.unitPrice), unit: item.unit },
       quantity: Number(item.quantity)
     })),
     total: Number(sale.total),

@@ -67,13 +67,14 @@ public class SalesHistoryService {
     SaleDetailRow sale = sales.getFirst();
     List<SaleItemView> items =
         jdbc.query(
-            "SELECT product_id, product_sku, product_name, unit_price, quantity, line_total "
+            "SELECT product_id, product_sku, product_name, unit, unit_price, quantity, line_total "
                 + "FROM sale_item WHERE sale_id = ? ORDER BY id",
             (result, row) ->
                 new SaleItemView(
                     result.getLong("product_id"),
                     result.getString("product_sku"),
                     result.getString("product_name"),
+                    result.getString("unit"),
                     result.getBigDecimal("unit_price"),
                     result.getBigDecimal("quantity"),
                     result.getBigDecimal("line_total")),
@@ -127,6 +128,7 @@ public class SalesHistoryService {
       Long productId,
       String sku,
       String name,
+      String unit,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal lineTotal) {}

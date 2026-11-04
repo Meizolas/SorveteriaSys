@@ -61,6 +61,7 @@ public class Product {
       ProductCategory category,
       String name,
       String sku,
+      String unit,
       BigDecimal price,
       boolean tracksStock,
       BigDecimal minimumStock,
@@ -68,7 +69,7 @@ public class Product {
     this.category = category;
     this.name = name.trim();
     this.sku = sku.trim().toUpperCase();
-    this.unit = "UNIT";
+    this.unit = unit;
     this.salePrice = price;
     this.active = true;
     this.tracksStock = tracksStock;
@@ -80,6 +81,7 @@ public class Product {
   public void update(
       ProductCategory newCategory,
       String newName,
+      String newUnit,
       BigDecimal price,
       boolean newActive,
       boolean stockControl,
@@ -87,6 +89,7 @@ public class Product {
       Instant now) {
     category = newCategory;
     name = newName.trim();
+    unit = newUnit;
     salePrice = price;
     active = newActive;
     tracksStock = stockControl;

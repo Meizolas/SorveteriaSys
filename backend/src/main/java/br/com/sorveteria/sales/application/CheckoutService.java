@@ -77,6 +77,7 @@ public class CheckoutService {
         throw new ApiException(
             HttpStatus.CONFLICT, "PRODUCT_INACTIVE", "Produto inativo: " + product.getName());
       }
+      validateQuantityForUnit(product, quantities.get(product.getId()));
     }
     BigDecimal total =
         selected.stream()
@@ -117,14 +118,20 @@ public class CheckoutService {
           || line.quantity() == null
           || line.quantity().scale() > 3
           || line.quantity().signum() <= 0
-          || line.quantity().compareTo(MAX_QUANTITY) > 0
-          || line.quantity().stripTrailingZeros().scale() > 0) {
+          || line.quantity().compareTo(MAX_QUANTITY) > 0) {
         throw new ApiException(
             HttpStatus.BAD_REQUEST, "INVALID_QUANTITY", "Quantidade inválida no carrinho.");
       }
       result.merge(line.productId(), line.quantity().setScale(3), BigDecimal::add);
     }
     return result;
+  }
+
+  private void validateQuantityForUnit(Product product, BigDecimal quantity) {
+    if ("UNIT".equals(product.getUnit()) && quantity.stripTrailingZeros().scale() > 0) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_QUANTITY",
+          "Produto vendido por unidade exige quantidade inteira: " + product.getName());
+    }
   }
 
   private String normalizeMethod(String value) {
@@ -185,6 +192,7 @@ public class CheckoutService {
                         item.getProductId(),
                         item.getProductSku(),
                         item.getProductName(),
+                        item.getUnit(),
                         item.getUnitPrice(),
                         item.getQuantity(),
                         item.getLineTotal()))
@@ -219,6 +227,7 @@ public class CheckoutService {
       Long productId,
       String sku,
       String name,
+      String unit,
       BigDecimal unitPrice,
       BigDecimal quantity,
       BigDecimal lineTotal) {}

@@ -6,7 +6,7 @@ import { OperationIcon } from '@/shared/ui/OperationIcon';
 import { moduleColors } from '@/app/theme';
 import { preparePrintJob } from '@/shared/api/operationsApi';
 
-export type CompletedSale = { saleId: number; orderNumber: string; completedAt: Date; lines: { product: { id: number; name: string; price: number }; quantity: number }[]; total: number; payment: string; received: number; change: number };
+export type CompletedSale = { saleId: number; orderNumber: string; completedAt: Date; lines: { product: { id: number; name: string; price: number; unit: 'UNIT' | 'KG' }; quantity: number }[]; total: number; payment: string; received: number; change: number };
 
 export function SaleCompletionDialog({ sale, onClose, onNewSale, mode = 'completion', operatorName }: { sale: CompletedSale | null; onClose: () => void; onNewSale?: () => void; mode?: 'completion' | 'history'; operatorName?: string }) {
   const mobile = useMediaQuery(useTheme().breakpoints.down('sm'));
@@ -72,7 +72,7 @@ function ReceiptPreview({ sale, operator, large = false, reprint = false }: { sa
     <Divider sx={{ my: 1, borderStyle: 'dashed', borderColor: '#111' }} />
     <Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>Pedido: #{sale.orderNumber}</Typography><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>{dateTime}</Typography><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>Operador: {operator}</Typography>
     <Divider sx={{ my: 1, borderStyle: 'dashed', borderColor: '#111' }} />
-    {sale.lines.map((line) => <Stack key={line.product.id} direction="row" sx={{ justifyContent: 'space-between', gap: 1 }}><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>{line.quantity} x {line.product.name}</Typography><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit', whiteSpace: 'nowrap' }}>{brl.format(line.product.price * line.quantity)}</Typography></Stack>)}
+    {sale.lines.map((line) => <Stack key={line.product.id} direction="row" sx={{ justifyContent: 'space-between', gap: 1 }}><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>{line.product.unit === 'KG' ? `${line.quantity.toFixed(3)} kg` : `${line.quantity} x`} {line.product.name}</Typography><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit', whiteSpace: 'nowrap' }}>{brl.format(line.product.price * line.quantity)}</Typography></Stack>)}
     <Divider sx={{ my: 1, borderStyle: 'dashed', borderColor: '#111' }} /><SummaryRow label="TOTAL" value={brl.format(sale.total)} /><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit', mt: 1 }}>Pagamento: {sale.payment}</Typography>{sale.payment === 'Dinheiro' && <><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>Recebido: {brl.format(sale.received)}</Typography><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit' }}>Troco: {brl.format(sale.change)}</Typography></>}
     <Divider sx={{ my: 1, borderStyle: 'dashed', borderColor: '#111' }} /><Typography sx={{ fontFamily: 'inherit', fontSize: 'inherit', textAlign: 'center' }}>Obrigado pela preferência!</Typography>
   </Box>;

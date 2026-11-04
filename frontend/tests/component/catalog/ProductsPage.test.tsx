@@ -10,7 +10,7 @@ vi.mock('@/shared/api/operationsApi', () => ({
 
 const product = {
   id: 7, name: 'Cascão', sku: 'CAS-001', categoryId: 2, category: 'Cascões',
-  price: 12.5, unit: 'UNIT', active: true, tracksStock: true,
+  price: 12.5, unit: 'UNIT' as const, active: true, tracksStock: true,
   minimumStock: 3, stock: 20, version: 0
 };
 
@@ -36,6 +36,7 @@ describe('ProductsPage', () => {
     await waitFor(() => expect(api.updateProduct).toHaveBeenCalledWith(7, {
       categoryId: 2,
       name: 'Cascão premium',
+      unit: 'UNIT',
       price: 15,
       active: true,
       tracksStock: true,

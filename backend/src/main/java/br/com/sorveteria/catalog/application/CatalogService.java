@@ -69,10 +69,12 @@ public class CatalogService {
       Long categoryId,
       String name,
       String sku,
+      String unit,
       BigDecimal price,
       boolean tracksStock,
       BigDecimal minimum) {
     validateMoney(price, minimum);
+    String normalizedUnit = normalizeUnit(unit);
     String normalizedSku = sku.trim().toUpperCase();
     if (products.existsBySku(normalizedSku)) {
       throw conflict("Código de produto já cadastrado.");
@@ -85,6 +87,7 @@ public class CatalogService {
                 category,
                 name,
                 normalizedSku,
+                normalizedUnit,
                 price.setScale(2),
                 tracksStock,
                 minimum.setScale(3),
@@ -98,16 +101,19 @@ public class CatalogService {
       Long id,
       Long categoryId,
       String name,
+      String unit,
       BigDecimal price,
       boolean active,
       boolean tracksStock,
       BigDecimal minimum) {
     validateMoney(price, minimum);
+    String normalizedUnit = normalizeUnit(unit);
     Product product = products.findById(id).orElseThrow(() -> notFound("Produto não encontrado."));
     ProductCategory category =
         categories.findById(categoryId).orElseThrow(() -> notFound("Categoria não encontrada."));
     product.update(
-        category, name, price.setScale(2), active, tracksStock, minimum.setScale(3), Instant.now());
+        category, name, normalizedUnit, price.setScale(2), active, tracksStock,
+        minimum.setScale(3), Instant.now());
     return view(product);
   }
 
@@ -142,6 +148,14 @@ public class CatalogService {
     }
     price.setScale(2, RoundingMode.UNNECESSARY);
     minimum.setScale(3, RoundingMode.UNNECESSARY);
+  }
+
+  private String normalizeUnit(String value) {
+    String unit = value == null ? "" : value.trim().toUpperCase();
+    if (!List.of("UNIT", "KG").contains(unit)) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "INVALID_UNIT", "Unidade de venda inválida.");
+    }
+    return unit;
   }
 
   private ApiException conflict(String message) {

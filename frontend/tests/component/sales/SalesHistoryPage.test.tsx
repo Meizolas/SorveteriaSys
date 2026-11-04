@@ -20,7 +20,7 @@ describe('SalesHistoryPage', () => {
     vi.mocked(api.listSales).mockResolvedValue([summary]);
     vi.mocked(api.getSale).mockResolvedValue({
       ...summary, receivedAmount: 30, changeAmount: 5,
-      items: [{ productId: 1, sku: 'CAS-001', name: 'Cascão', unitPrice: 12.5, quantity: 2, lineTotal: 25 }]
+      items: [{ productId: 1, sku: 'CAS-001', name: 'Cascão', unit: 'UNIT', unitPrice: 12.5, quantity: 2, lineTotal: 25 }]
     });
   });
 

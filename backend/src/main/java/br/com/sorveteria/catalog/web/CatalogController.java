@@ -46,13 +46,13 @@ public class CatalogController {
 
     @PostMapping("/products") @ResponseStatus(HttpStatus.CREATED)
     ProductData createProduct(@Valid @RequestBody ProductRequest input) {
-        return catalog.createProduct(input.categoryId(), input.name(), input.sku(), input.price(),
+        return catalog.createProduct(input.categoryId(), input.name(), input.sku(), input.unit(), input.price(),
                 input.tracksStock(), input.minimumStock());
     }
 
     @PatchMapping("/products/{id}")
     ProductData updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest input) {
-        return catalog.updateProduct(id, input.categoryId(), input.name(), input.price(), input.active(),
+        return catalog.updateProduct(id, input.categoryId(), input.name(), input.unit(), input.price(), input.active(),
                 input.tracksStock(), input.minimumStock());
     }
 
@@ -61,10 +61,12 @@ public class CatalogController {
             boolean active) { }
     public record ProductRequest(@NotNull Long categoryId, @NotBlank @Size(max = 120) String name,
             @NotBlank @Size(max = 40) String sku,
+            @NotBlank @jakarta.validation.constraints.Pattern(regexp = "UNIT|KG") String unit,
             @NotNull @DecimalMin("0.00") @Digits(integer = 11, fraction = 2) BigDecimal price,
             boolean tracksStock,
             @NotNull @DecimalMin("0.000") @Digits(integer = 10, fraction = 3) BigDecimal minimumStock) { }
     public record ProductUpdateRequest(@NotNull Long categoryId, @NotBlank @Size(max = 120) String name,
+            @NotBlank @jakarta.validation.constraints.Pattern(regexp = "UNIT|KG") String unit,
             @NotNull @DecimalMin("0.00") @Digits(integer = 11, fraction = 2) BigDecimal price,
             boolean active, boolean tracksStock,
             @NotNull @DecimalMin("0.000") @Digits(integer = 10, fraction = 3) BigDecimal minimumStock) { }
